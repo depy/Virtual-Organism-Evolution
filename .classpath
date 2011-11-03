@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="lib/eventbus-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/j-ogg-oggd.jar"/>
+	<classpathentry kind="lib" path="lib/j-ogg-vorbisd.jar"/>
+	<classpathentry kind="lib" path="lib/jbullet.jar"/>
+	<classpathentry kind="lib" path="lib/jheora-jst-debug-0.6.0.jar"/>
+	<classpathentry kind="lib" path="lib/jinput.jar"/>
+	<classpathentry kind="lib" path="lib/jME3-jbullet.jar"/>
+	<classpathentry kind="lib" path="lib/jME3-lwjgl-natives.jar"/>
+	<classpathentry kind="lib" path="lib/jME3-test.jar"/>
+	<classpathentry kind="lib" path="lib/jMonkeyEngine3.jar"/>
+	<classpathentry kind="lib" path="lib/lwjgl.jar"/>
+	<classpathentry kind="lib" path="lib/nifty-1.3-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/nifty-default-controls-1.3-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/nifty-style-black-1.3-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/nifty-style-grey-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/noise-0.0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/stack-alloc.jar"/>
+	<classpathentry kind="lib" path="lib/vecmath.jar"/>
+	<classpathentry kind="lib" path="lib/xmlpull-xpp3-1.1.4c.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
