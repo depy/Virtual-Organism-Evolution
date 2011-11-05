@@ -12,11 +12,10 @@ public class OrganismTimer extends Observable implements Runnable
 	int period;
 	OrganismEvolution app;
 	
-	public OrganismTimer(int periodInMs, int timeInterval, OrganismEvolution app)
+	public OrganismTimer(int periodInMs, int timeInterval)
 	{
 		this.period = periodInMs;
 		this.interval = timeInterval;
-		this.app = app;
 	}
 	
 	@Override
@@ -26,7 +25,7 @@ public class OrganismTimer extends Observable implements Runnable
 		{
 			Thread.sleep(6000);
 			System.out.println("Timer started...");
-			app.setStartPosition(((BoundingBox)(app.getOrganism().getWorldBound())).getCenter().clone());
+			
 			while(true)
 			{
 				setChanged();

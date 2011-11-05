@@ -5,9 +5,15 @@ import com.matjazmuhic.util.JointProperties;
 
 public class BlockNode extends BasicNode
 {
+	private static final long serialVersionUID = -2223785630550397267L;
+
 	private IBlockNode parent;
 	
 	private JointProperties jointProperties;
+	
+	public BlockNode()
+	{
+	}
 	
 	public BlockNode(Dimensions dimensions, JointProperties jointProperties)
 	{
@@ -28,6 +34,12 @@ public class BlockNode extends BasicNode
 	public JointProperties getJointProperties()
 	{
 		return jointProperties;
+	}
+
+	//Needed for xml serialization
+	public void setJointProperties(JointProperties jointProperties) 
+	{
+		this.jointProperties = jointProperties;
 	}
 	
 }

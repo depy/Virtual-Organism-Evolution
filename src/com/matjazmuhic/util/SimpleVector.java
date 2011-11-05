@@ -6,6 +6,10 @@ public class SimpleVector
 	private float y;
 	private float z;
 	
+	public SimpleVector()
+	{
+	}
+	
 	public SimpleVector(float x, float y, float z)
 	{
 		this.x = x;
@@ -28,5 +32,20 @@ public class SimpleVector
 		return z;
 	}
 	
+	//Needed for xml serialization
+	public void setX(float x) 
+	{
+		this.x = x;
+	}
+
+	public void setY(float y) 
+	{
+		this.y = y;
+	}
+
+	public void setZ(float z) 
+	{
+		this.z = z;
+	}
 	
 }

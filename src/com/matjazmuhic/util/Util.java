@@ -1,5 +1,12 @@
 package com.matjazmuhic.util;
 
+import java.beans.XMLDecoder;
+import java.beans.XMLEncoder;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.List;
 import java.util.Random;
 
@@ -18,6 +25,8 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
+import com.matjazmuhic.OrganismEvolution;
+import com.matjazmuhic.tree.OrganismTree;
 
 public class Util 
 {
@@ -82,16 +91,17 @@ public class Util
 		}
 	}
 	
-	public static JmeObject createJmeNode(Dimensions d, AssetManager assetManager, BulletAppState bulletAppState, String name)
+	public static JmeObject createJmeNode(Dimensions d, OrganismEvolution app, String name)
 	{
 		Box b = new Box(d.x, d.y, d.z);
 		Geometry geometry = new Geometry(name, b);
-		Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+		Material material = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
 		material.setColor("Color", ColorRGBA.randomColor());
 		geometry.setMaterial(material);
 		geometry.addControl(new RigidBodyControl());
 		geometry.getControl(RigidBodyControl.class).setPhysicsLocation(geometry.getLocalTranslation());
-		bulletAppState.getPhysicsSpace().add(geometry);
+		app.getBulletAppState().getPhysicsSpace().add(geometry);
+		app.getStore().get("materials").add(material);
 		return new JmeObject(material, geometry);
 	}
 	
@@ -106,7 +116,7 @@ public class Util
 		return new Vector3f(r.nextFloat(), r.nextFloat(), r.nextFloat());
 	}
 	
-	public static  boolean collidesWithOtherNodes(Geometry geometry, Node sceneNode)
+	public static boolean collidesWithOtherNodes(Geometry geometry, Node sceneNode)
 	{
 		List<Spatial> spatials = sceneNode.getChildren();
 		
@@ -123,4 +133,34 @@ public class Util
 		return false;
 	}
 	
+	public static void write(OrganismTree f, String filename)
+	{
+        XMLEncoder encoder = null;
+		try
+		{
+			encoder = new XMLEncoder(new BufferedOutputStream(new FileOutputStream("resources/com/matjazmuhic/organismStorage/"+filename)));
+		} 
+		catch (FileNotFoundException e) 
+		{
+			e.printStackTrace();
+		}
+        encoder.writeObject(f);
+        encoder.close();
+    }
+
+    public static OrganismTree read(String filename)
+    {
+        XMLDecoder decoder = null;
+		try 
+		{
+			decoder = new XMLDecoder(new BufferedInputStream(new FileInputStream("resources/com/matjazmuhic/organismStorage/"+filename)));
+		}
+		catch (FileNotFoundException e) 
+		{
+			e.printStackTrace();
+		}
+        OrganismTree o = (OrganismTree)decoder.readObject();
+        decoder.close();
+        return o;
+    }	
 }

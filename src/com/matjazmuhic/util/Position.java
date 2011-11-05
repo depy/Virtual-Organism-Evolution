@@ -58,4 +58,46 @@ public class Position
 	{
 		return this.x+"\t"+this.y+"\t"+this.z;
 	}
+
+	//Needed for xml serialization
+	public static Position[] getInstances() 
+	{
+		return instances;
+	}
+
+	public static void setInstances(Position[] instances) 
+	{
+		Position.instances = instances;
+	}
+
+	public int getX()
+	{
+		return x;
+	}
+
+	public void setX(int x) 
+	{
+		this.x = x;
+	}
+
+	public int getY()
+	{
+		return y;
+	}
+
+	public void setY(int y)
+	{
+		this.y = y;
+	}
+
+	public int getZ() 
+	{
+		return z;
+	}
+
+	public void setZ(int z)
+	{
+		this.z = z;
+	}
+	
 }

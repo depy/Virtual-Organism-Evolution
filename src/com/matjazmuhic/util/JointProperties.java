@@ -12,6 +12,10 @@ public class JointProperties
 	private long timeA;
 	private long timeB;
 	
+	public JointProperties() 
+	{
+	}
+	
 	public JointProperties(SimpleVector axis1, SimpleVector axis2, float lowerLimit, float upperLimit, boolean collisions, float motorTargetVelocity, float motorMaxImpulse, int timeA, int timeB) 
 	{
 		this.axis1 = axis1;
@@ -68,6 +72,53 @@ public class JointProperties
 	public long getTimeB() 
 	{
 		return timeB;
+	}
+
+
+	//Needed for xml serialization
+	public void setAxis1(SimpleVector axis1)
+	{
+		this.axis1 = axis1;
+	}
+
+	public void setAxis2(SimpleVector axis2) 
+	{
+		this.axis2 = axis2;
+	}
+
+	public void setLowerLimit(float lowerLimit) 
+	{
+		this.lowerLimit = lowerLimit;
+	}
+
+	public void setUpperLimit(float upperLimit) 
+	{
+		this.upperLimit = upperLimit;
+	}
+
+	public void setCollisions(boolean collisions) 
+	{
+		this.collisions = collisions;
+	}
+
+	public void setMotorTargetVelocity(float motorTargetVelocity) 
+	{
+		this.motorTargetVelocity = motorTargetVelocity;
+	}
+
+	public void setMotorMaxImpulse(float motorMaxImpulse) 
+	{
+		this.motorMaxImpulse = motorMaxImpulse;
+	}
+
+	public void setTimeA(long timeA) 
+	{
+		this.timeA = timeA;
+	}
+
+	public void setTimeB(long timeB) 
+	{
+		this.timeB = timeB;
 	}
 	
 }

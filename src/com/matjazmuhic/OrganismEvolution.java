@@ -8,11 +8,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
-import com.jme3.bounding.BoundingVolume;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.joints.HingeJoint;
-import com.jme3.collision.CollisionResults;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -24,6 +22,7 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
+import com.jme3.system.JmeContext;
 import com.matjazmuhic.tree.OrganismTree;
 import com.matjazmuhic.util.JointProperties;
 import com.matjazmuhic.util.KeyInputActionListener;
@@ -37,7 +36,7 @@ public class OrganismEvolution extends SimpleApplication
 	private Map<String, List<Material>> store = new HashMap<String, List<Material>>();
 	OrganismTree ot1 = null;
 	Geometry floor = null;
-	Node organism = null;
+	Node organismNode = null;
 	Thread timerThread;
 	int timePeriod = 5000;
 	int timeInterval = 250;
@@ -47,7 +46,7 @@ public class OrganismEvolution extends SimpleApplication
 	public static void main(String[] args)
 	{
 		OrganismEvolution app = new OrganismEvolution();
-		app.start();
+		app.start(/*JmeContext.Type.Headless*/);
 		app.setShowSettings(false);
 		app.store.put("materials", new ArrayList<Material>());
 	}
@@ -71,26 +70,37 @@ public class OrganismEvolution extends SimpleApplication
 		
 		initPhysics();
 		
-		organism = new Node();
-		ot1 = new OrganismTree(Util.getRandomDimensions(), organism, this);
-		ot1.createRandom();	
+		organismNode = new Node();
 		
-		OrganismTimer ot = new OrganismTimer(timePeriod, timeInterval, this);
+		OrganismFactory organismFactory = OrganismFactory.getInstance();
+		organismFactory.init(this);
 		
-		for(Map.Entry<HingeJoint, JointProperties> entry: ot1.getJointsMap().entrySet())
+		Organism organism = organismFactory.createRandomOrganism(organismNode);
+		
+		Util.write(organism.getOrganismTree(), "test1.xml");
+		
+		organism.setOrganismTree(null);
+		
+		OrganismTree oTree = Util.read("test1.xml");
+		organism.setOrganismTree(oTree);
+		
+		setStartPosition(organismNode.getWorldBound().getCenter());
+		OrganismTimer organismTimer = organism.getOrganismJme().getOt();
+		
+		for(Map.Entry<HingeJoint, JointProperties> entry: organism.getOrganismJme().getJointsMap().entrySet())
 		{
 			HingeJoint hj = entry.getKey();
 			JointProperties jp = entry.getValue();
 			MotorObserver mo = new MotorObserver(hj, jp);
-			ot.addObserver(mo);
+			organismTimer.addObserver(mo);
 		}
 		
-		timerThread = new Thread(ot);
+		timerThread = new Thread(organismTimer);
 		timerThread.start();
 		
-		rootNode.attachChild(organism);
+		rootNode.attachChild(organism.getOrganismJme().getNode());
 		
-		addFloor(organism);
+		addFloor(organismNode);
 
 	}
 	
@@ -100,7 +110,7 @@ public class OrganismEvolution extends SimpleApplication
 		super.update();
 		if(startPosition!=null)
 		{
-			float distance = ((BoundingBox)(organism.getWorldBound())).distanceTo(startPosition);
+			float distance = ((BoundingBox)(organismNode.getWorldBound())).distanceTo(startPosition);
 			if(distance > 1)
 			{
 				System.out.println("Distance traveled: "+distance);
@@ -166,7 +176,7 @@ public class OrganismEvolution extends SimpleApplication
 
 	public Node getOrganism()
 	{
-		return organism;
+		return organismNode;
 	}
 
 	public int getTimePeriod() 
