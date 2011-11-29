@@ -77,12 +77,14 @@ public class OrganismEvolution extends SimpleApplication
 		
 		Organism organism = organismFactory.createRandomOrganism(organismNode);
 		
+		/*
 		Util.write(organism.getOrganismTree(), "test1.xml");
 		
 		organism.setOrganismTree(null);
 		
 		OrganismTree oTree = Util.read("test1.xml");
 		organism.setOrganismTree(oTree);
+		*/
 		
 		setStartPosition(organismNode.getWorldBound().getCenter());
 		OrganismTimer organismTimer = organism.getOrganismJme().getOt();
