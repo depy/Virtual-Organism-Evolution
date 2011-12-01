@@ -22,22 +22,23 @@ import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
-import com.jme3.system.JmeContext;
+import com.jme3.system.AppSettings;
 import com.matjazmuhic.tree.OrganismTree;
 import com.matjazmuhic.util.JointProperties;
 import com.matjazmuhic.util.KeyInputActionListener;
 import com.matjazmuhic.util.MotorObserver;
 import com.matjazmuhic.util.OrganismTimer;
-import com.matjazmuhic.util.Util;
 
 public class OrganismEvolution extends SimpleApplication
 {
+	static OrganismEvolution app = null;
+	
 	private BulletAppState bulletAppState;
 	private Map<String, List<Material>> store = new HashMap<String, List<Material>>();
 	OrganismTree ot1 = null;
 	Geometry floor = null;
 	Node organismNode = null;
-	Thread timerThread;
+	List<Thread> timerThreads = null;
 	int timePeriod = 5000;
 	int timeInterval = 250;
 	Camera mainCam;
@@ -45,16 +46,26 @@ public class OrganismEvolution extends SimpleApplication
 	
 	public static void main(String[] args)
 	{
-		OrganismEvolution app = new OrganismEvolution();
-		app.start(/*JmeContext.Type.Headless*/);
+		app = new OrganismEvolution();
+		
+		AppSettings settings = new AppSettings(true);
+		settings.setResolution(800,600);
+		
 		app.setShowSettings(false);
+		app.start(/*JmeContext.Type.Headless*/);
+		
 		app.store.put("materials", new ArrayList<Material>());
+		app.timerThreads = new ArrayList<Thread>();
 	}
 	
 	@Override
 	public void destroy() 
 	{
-		timerThread.interrupt();
+		for(Thread t: timerThreads)
+		{
+			t.interrupt();
+		}
+		
 		super.destroy();
 	}
 	
@@ -63,11 +74,12 @@ public class OrganismEvolution extends SimpleApplication
 	@Override
 	public void simpleInitApp()
 	{
+		
+		
 		Logger.getLogger("com.jme3").setLevel(Level.SEVERE);
 		
 		mapKeys();
 		initCamera();
-		
 		initPhysics();
 		
 		organismNode = new Node();
@@ -87,18 +99,18 @@ public class OrganismEvolution extends SimpleApplication
 		*/
 		
 		setStartPosition(organismNode.getWorldBound().getCenter());
-		OrganismTimer organismTimer = organism.getOrganismJme().getOt();
 		
 		for(Map.Entry<HingeJoint, JointProperties> entry: organism.getOrganismJme().getJointsMap().entrySet())
 		{
 			HingeJoint hj = entry.getKey();
 			JointProperties jp = entry.getValue();
 			MotorObserver mo = new MotorObserver(hj, jp);
+			OrganismTimer organismTimer = new OrganismTimer(jp.getTimePeriod(), jp.getTimeInterval());
 			organismTimer.addObserver(mo);
-		}
-		
-		timerThread = new Thread(organismTimer);
-		timerThread.start();
+			Thread t = new Thread(organismTimer);
+			t.start();
+			timerThreads.add(t);
+		}	
 		
 		rootNode.attachChild(organism.getOrganismJme().getNode());
 		

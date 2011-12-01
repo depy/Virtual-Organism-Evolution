@@ -66,8 +66,7 @@ public class OrganismFactory
 	{
 		Map<HingeJoint, JointProperties> jointsMap = new HashMap<HingeJoint, JointProperties>();
 		OrganismTree oTree = new OrganismTree();
-		OrganismTimer oTimer = new OrganismTimer(jointTimePeriod, jointTimeInterval);
-		OrganismJme oJme = new OrganismJme(node, jointsMap, oTimer);
+		OrganismJme oJme = new OrganismJme(node, jointsMap);
 		Organism organism = new Organism(oTree, oJme);
 			
 		createRoot(organism);
@@ -104,7 +103,7 @@ public class OrganismFactory
 				if(r.nextInt(chanceToCreateNode)==0 || passWithoutChance)
 				{
 					Dimensions d = Util.getRandomDimensions();
-					JointProperties jp = Util.getRandomJointProps(jointTimePeriod, jointTimeInterval);
+					JointProperties jp = Util.getRandomJointProps();
 					BlockNode newNode= new BlockNode(d, jp);
 					node.addChild(newNode, i);
 

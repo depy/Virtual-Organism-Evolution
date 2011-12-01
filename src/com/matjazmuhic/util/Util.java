@@ -30,6 +30,8 @@ import com.matjazmuhic.tree.OrganismTree;
 
 public class Util 
 {
+	private static int timerTimeInterval = 250; // miliseconds
+	
 	public static class JmeObject
 	{
 		public Material material;
@@ -50,7 +52,7 @@ public class Util
 		return new Dimensions(r.nextFloat()*f, r.nextFloat()*f, r.nextFloat()*f);
 	}
 	
-	public static JointProperties getRandomJointProps(int timePeriod, int timeInterval)
+	public static JointProperties getRandomJointProps()
 	{
 		SimpleVector axis1 = new SimpleVector(r.nextFloat(), r.nextFloat(), r.nextFloat());
 		SimpleVector axis2 = new SimpleVector(r.nextFloat(), r.nextFloat(), r.nextFloat());
@@ -61,11 +63,14 @@ public class Util
 		float motorMaxImpulse = getRandomFloatTenth()*5.0f;
 		//float motorMaxImpulse = r.nextFloat();
 		System.out.println("Motor max impulse = "+motorMaxImpulse);
+		int timePeriod = r.nextInt(4500)+500;
+		System.out.println("generated timePeriod: "+timePeriod);
+		int timeInterval = timerTimeInterval;
 		int timeRange = timePeriod / timeInterval;
 		int timeA = r.nextInt(timeRange);
 		int timeB = r.nextInt(timeRange-timeA);
 		
-		return new JointProperties(axis1, axis2, lowerLimit, upperLimit, collisions, motorTargetVelocity, motorMaxImpulse, timeA, timeB);
+		return new JointProperties(axis1, axis2, lowerLimit, upperLimit, collisions, motorTargetVelocity, motorMaxImpulse, timeA, timeB, timePeriod, timeInterval);
 	}
 	
 	private static float getRandomFloatTenth()

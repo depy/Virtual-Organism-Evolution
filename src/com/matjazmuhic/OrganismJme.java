@@ -11,13 +11,11 @@ public class OrganismJme
 {
 	Node node;
 	Map<HingeJoint, JointProperties> jointsMap;
-	OrganismTimer ot;
 	
-	public OrganismJme(Node node, Map<HingeJoint, JointProperties> jointsMap, OrganismTimer ot) 
+	public OrganismJme(Node node, Map<HingeJoint, JointProperties> jointsMap) 
 	{
 		this.node = node;
 		this.jointsMap = jointsMap;
-		this.ot = ot;
 	}
 
 	public Node getNode()
@@ -28,12 +26,6 @@ public class OrganismJme
 	public Map<HingeJoint, JointProperties> getJointsMap() 
 	{
 		return jointsMap;
-	}
-
-	public OrganismTimer getOt() 
-	{
-		return ot;
-	}
-	
+	}	
 	
 }
