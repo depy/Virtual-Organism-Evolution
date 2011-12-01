@@ -28,6 +28,12 @@ public class Organism
 		this.organismTree = organismTree;
 	}
 	
-	
+	public void notifyDestroy()
+	{
+		for(Thread t: organismJme.timerThreads)
+		{
+			t.interrupt();
+		}
+	}
 	
 }

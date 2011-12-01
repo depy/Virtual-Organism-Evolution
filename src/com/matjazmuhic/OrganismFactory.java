@@ -1,15 +1,11 @@
 package com.matjazmuhic;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import com.jme3.asset.AssetManager;
-import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.joints.HingeJoint;
-import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -20,6 +16,7 @@ import com.matjazmuhic.tree.IBlockNode;
 import com.matjazmuhic.tree.OrganismTree;
 import com.matjazmuhic.util.Dimensions;
 import com.matjazmuhic.util.JointProperties;
+import com.matjazmuhic.util.MotorObserver;
 import com.matjazmuhic.util.OrganismTimer;
 import com.matjazmuhic.util.Position;
 import com.matjazmuhic.util.Util;
@@ -71,6 +68,18 @@ public class OrganismFactory
 			
 		createRoot(organism);
 		createRecursively(organism.getOrganismTree().getRoot(), node, maxDepth, organism.getOrganismJme().getJointsMap());
+		
+		for(Map.Entry<HingeJoint, JointProperties> entry: oJme.getJointsMap().entrySet())
+		{
+			HingeJoint hj = entry.getKey();
+			JointProperties jp = entry.getValue();
+			MotorObserver mo = new MotorObserver(hj, jp);
+			OrganismTimer organismTimer = new OrganismTimer(jp.getTimePeriod(), jp.getTimeInterval());
+			organismTimer.addObserver(mo);
+			Thread t = new Thread(organismTimer);
+			t.start();
+			oJme.timerThreads.add(t);
+		}	
 		
 		return organism;
 	}
