@@ -23,6 +23,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
 import com.matjazmuhic.util.KeyInputActionListener;
+import com.matjazmuhic.util.Util;
 
 public class OrganismEvolution extends SimpleApplication
 {
@@ -34,7 +35,7 @@ public class OrganismEvolution extends SimpleApplication
 	Node organismNode = null;
 	Camera mainCam;
 	Vector3f startPosition = null;
-	Organism organism;
+	public Organism organism;
 	
 	public static void main(String[] args)
 	{
@@ -61,7 +62,7 @@ public class OrganismEvolution extends SimpleApplication
 	@Override
 	public void simpleInitApp()
 	{
-		Logger.getLogger("com.jme3").setLevel(Level.SEVERE);
+		Logger.getLogger("com.jme3").setLevel(Level.FINEST);
 		
 		mapKeys();
 		initCamera();
@@ -72,9 +73,8 @@ public class OrganismEvolution extends SimpleApplication
 		organismFactory.init(this);
 		organism = organismFactory.createRandomOrganism(organismNode);
 		
+		//Util.write(organism.getOrganismTree(), "test1.xml");
 		/*
-		Util.write(organism.getOrganismTree(), "test1.xml");
-		
 		organism.setOrganismTree(null);
 		
 		OrganismTree oTree = Util.read("test1.xml");
@@ -134,7 +134,7 @@ public class OrganismEvolution extends SimpleApplication
 		Material matf = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 		matf.setColor("Color", ColorRGBA.LightGray);
 		floor.setMaterial(matf);
-		floor.setLocalTranslation(0, min.y-1.0f, 0);
+		floor.setLocalTranslation(0, min.y-10.0f, 0);
 		RigidBodyControl fc = new RigidBodyControl(0.0f);
 		floor.addControl(fc);
 		floor.getControl(RigidBodyControl.class).setFriction(1.0f);

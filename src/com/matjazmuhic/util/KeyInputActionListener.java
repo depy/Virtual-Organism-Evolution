@@ -2,7 +2,6 @@ package com.matjazmuhic.util;
 
 import java.util.List;
 import java.util.Map;
-import com.jme3.bullet.BulletAppState;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.material.Material;
 import com.matjazmuhic.OrganismEvolution;

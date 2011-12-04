@@ -23,9 +23,9 @@ import com.matjazmuhic.util.Util;
 
 public class OrganismFactory 
 {
-	int maxDepth = 3;
+	int maxDepth = 4;
 	int maxNodes = 10;
-	int chanceToCreateNode = 3; // 2 = 50%, 3 = 33%, 4 = 25%, ...
+	int chanceToCreateNode = 2; // 2 = 50%, 3 = 33%, 4 = 25%, ...
 	
 	float jointOffset = 0.0f;
 	int jointTimePeriod = 5000;
@@ -127,17 +127,16 @@ public class OrganismFactory
 					translateGeometry(geometry, parentSpatial, node, newNode, p, pi);
 					
 					boolean collidesWithOtherNodes = Util.collidesWithOtherNodes(geometry, sceneNode);
-					if(collidesWithOtherNodes)
+					if(!collidesWithOtherNodes)
 					{
-						continue;
-					}
 
-					HingeJoint joint = makeJoint(geometry, parentSpatial, node, newNode, jp, p, pi);
-					jointsMap.put(joint, jp);
-					sceneNode.attachChild(geometry);
+						HingeJoint joint = makeJoint(geometry, parentSpatial, node, newNode, jp, p, pi);
+						jointsMap.put(joint, jp);
+						sceneNode.attachChild(geometry);
+						
+						numNodes++;
 					
-					numNodes++;
-
+					}
 					createRecursively(newNode, sceneNode, depth+1, jointsMap);
 					passWithoutChance = false;
 				}

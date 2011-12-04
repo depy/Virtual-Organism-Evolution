@@ -1,8 +1,6 @@
 package com.matjazmuhic.util;
 
 import java.util.Observable;
-
-import com.jme3.bounding.BoundingBox;
 import com.matjazmuhic.OrganismEvolution;
 
 public class OrganismTimer extends Observable implements Runnable
@@ -24,7 +22,6 @@ public class OrganismTimer extends Observable implements Runnable
 		try
 		{
 			Thread.sleep(6000);
-			System.out.println("Timer started...");
 			
 			while(true)
 			{

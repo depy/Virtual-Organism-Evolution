@@ -55,13 +55,13 @@ public class Util
 		SimpleVector axis2 = new SimpleVector(r.nextFloat(), r.nextFloat(), r.nextFloat());
 		float lowerLimit = (r.nextFloat()*1.57f)-1.57f;
 		float upperLimit = r.nextFloat()*1.57f;	
-		boolean collisions = true;
-		float motorTargetVelocity = r.nextFloat()*100f;
-		float motorMaxImpulse = getRandomFloatTenth()*5.0f;
+		boolean collisions = false;
+		float motorTargetVelocity = r.nextFloat()*60f;
+		float motorMaxImpulse = getRandomFloatTenth()*2.0f;
 		//float motorMaxImpulse = r.nextFloat();
 		System.out.println("Motor max impulse = "+motorMaxImpulse);
+		System.out.println("Motor max velocity = "+motorTargetVelocity);
 		int timePeriod = r.nextInt(4500)+500;
-		System.out.println("generated timePeriod: "+timePeriod);
 		int timeInterval = timerTimeInterval;
 		int timeRange = timePeriod / timeInterval;
 		int timeA = r.nextInt(timeRange);
