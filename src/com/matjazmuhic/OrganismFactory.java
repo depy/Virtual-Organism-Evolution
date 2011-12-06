@@ -13,6 +13,7 @@ import com.jme3.scene.Spatial;
 import com.matjazmuhic.tree.BasicNode;
 import com.matjazmuhic.tree.BlockNode;
 import com.matjazmuhic.tree.IBlockNode;
+import com.matjazmuhic.tree.ITreeNode;
 import com.matjazmuhic.tree.OrganismTree;
 import com.matjazmuhic.util.Dimensions;
 import com.matjazmuhic.util.JointProperties;
@@ -23,9 +24,9 @@ import com.matjazmuhic.util.Util;
 
 public class OrganismFactory 
 {
-	int maxDepth = 4;
+	int maxDepth = 10;
 	int maxNodes = 10;
-	int chanceToCreateNode = 2; // 2 = 50%, 3 = 33%, 4 = 25%, ...
+	int chanceToCreateNode = 5;
 	
 	float jointOffset = 0.0f;
 	int jointTimePeriod = 5000;
@@ -66,7 +67,7 @@ public class OrganismFactory
 		OrganismJme oJme = new OrganismJme(node, jointsMap);
 		Organism organism = new Organism(oTree, oJme);
 			
-		createRoot(organism);
+		createRandomRoot(organism);
 		createRecursively(organism.getOrganismTree().getRoot(), node, maxDepth, organism.getOrganismJme().getJointsMap());
 		
 		for(Map.Entry<HingeJoint, JointProperties> entry: oJme.getJointsMap().entrySet())
@@ -84,7 +85,7 @@ public class OrganismFactory
 		return organism;
 	}
 	
-	private void createRoot(Organism organism)
+	private void createRandomRoot(Organism organism)
 	{
 		IBlockNode root = new BasicNode(Util.getRandomDimensions());
 		organism.getOrganismTree().setRoot(root);
@@ -99,17 +100,19 @@ public class OrganismFactory
 		{
 			for(int i=0; i<6; i++)
 			{
+				/*
 				if(sceneNode.getChildren().size()>=maxNodes)
 				{
 					break;
 				}
-
+				*/
+				/*
 				if(i==5 && numNodes==1)
 				{
 					passWithoutChance = true;
 				}
-				
-				if(r.nextInt(chanceToCreateNode)==0 || passWithoutChance)
+				*/
+				if(r.nextInt(chanceToCreateNode)>0 /*|| passWithoutChance*/)
 				{
 					Dimensions d = Util.getRandomDimensions();
 					JointProperties jp = Util.getRandomJointProps();
@@ -144,6 +147,71 @@ public class OrganismFactory
 				{
 					node.getChildren()[i] = null;
 				}
+			}
+		}
+	}
+	
+	private void createRoot(OrganismTree organismTree, OrganismJme organismJme)
+	{
+		IBlockNode root = organismTree.getRoot();
+		Util.JmeObject jmeObject = Util.createJmeNode(root.getDimensions(), app, root.getGeometryId());
+		
+		organismJme.getNode().attachChild(jmeObject.geometry);
+	}
+	
+	public Organism createFromTree(OrganismTree organismTree, Node sceneNode)
+	{
+		Map<HingeJoint, JointProperties> jointsMap = new HashMap<HingeJoint, JointProperties>();
+		OrganismJme oJme = new OrganismJme(sceneNode, jointsMap);
+		Organism organism = new Organism(organismTree, oJme);
+			
+		createRoot(organismTree, oJme);
+		createRecursivelyFromTree(organism.getOrganismTree().getRoot(), oJme.getNode(), organism.getOrganismJme().getJointsMap());
+		
+		for(Map.Entry<HingeJoint, JointProperties> entry: oJme.getJointsMap().entrySet())
+		{
+			HingeJoint hj = entry.getKey();
+			JointProperties jp = entry.getValue();
+			MotorObserver mo = new MotorObserver(hj, jp);
+			OrganismTimer organismTimer = new OrganismTimer(jp.getTimePeriod(), jp.getTimeInterval());
+			organismTimer.addObserver(mo);
+			Thread t = new Thread(organismTimer);
+			t.start();
+			oJme.timerThreads.add(t);
+		}	
+		
+		return organism;
+	}
+	
+	private void createRecursivelyFromTree(IBlockNode node, Node sceneNode, Map<HingeJoint, JointProperties> jointsMap)
+	{
+		for(int i=0; i<node.getChildren().length; i++)
+		{		
+			BlockNode childNode = (BlockNode)node.getChildren()[i];
+			
+			if(childNode==null)
+				continue;
+			
+			Dimensions d = childNode.getDimensions();
+			JointProperties jp = childNode.getJointProperties();
+	
+			Util.JmeObject jmeObject = Util.createJmeNode(childNode.getDimensions(), app, childNode.getGeometryId()); 
+			app.getStore().get("materials").add(jmeObject.material);
+			
+			Geometry geometry = jmeObject.geometry;
+			Spatial parentSpatial = sceneNode.getChild(node.getGeometryId());
+			Position p = Position.getPosition(i);
+			Position pi = Position.getPosition(Util.getInversePosition(i));
+					
+			translateGeometry(geometry, parentSpatial, node, childNode, p, pi);
+
+			HingeJoint joint = makeJoint(geometry, parentSpatial, node, childNode, jp, p, pi);
+			jointsMap.put(joint, jp);
+			sceneNode.attachChild(geometry);
+			
+			if(childNode.hasChildren())
+			{
+				createRecursivelyFromTree(childNode, sceneNode, jointsMap);
 			}
 		}
 	}

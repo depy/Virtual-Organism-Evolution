@@ -19,14 +19,16 @@ public class MotorObserver implements Observer
 	@Override
 	public void update(Observable observable, Object obj)
 	{
-		hingeJoint.getBodyA().activate();
-		hingeJoint.getBodyB().activate();
 		if(jointProperties.getTimeA()==(Integer)obj)
 		{
+			hingeJoint.getBodyA().activate();
+			hingeJoint.getBodyB().activate();
 			hingeJoint.enableMotor(true, jointProperties.getMotorTargetVelocity(), jointProperties.getMotorMaxImpulse());
 		}
 		else if(jointProperties.getTimeB()==(Integer)obj)
 		{
+			hingeJoint.getBodyA().activate();
+			hingeJoint.getBodyB().activate();
 			hingeJoint.enableMotor(true, jointProperties.getMotorTargetVelocity()*(-1), jointProperties.getMotorMaxImpulse());
 		}
 	}

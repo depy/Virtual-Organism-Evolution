@@ -22,6 +22,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
+import com.matjazmuhic.tree.OrganismTree;
 import com.matjazmuhic.util.KeyInputActionListener;
 import com.matjazmuhic.util.Util;
 
@@ -32,7 +33,7 @@ public class OrganismEvolution extends SimpleApplication
 	private BulletAppState bulletAppState;
 	private Map<String, List<Material>> store = new HashMap<String, List<Material>>();
 	Geometry floor = null;
-	Node organismNode = null;
+	Node organismNode;
 	Camera mainCam;
 	Vector3f startPosition = null;
 	public Organism organism;
@@ -66,20 +67,22 @@ public class OrganismEvolution extends SimpleApplication
 		
 		mapKeys();
 		initCamera();
-		initPhysics();
-		
+		initPhysics();	
+		System.out.println(organismNode);
 		organismNode = new Node();
+		System.out.println(organismNode);
+		/*
 		OrganismFactory organismFactory = OrganismFactory.getInstance();
 		organismFactory.init(this);
 		organism = organismFactory.createRandomOrganism(organismNode);
-		
-		//Util.write(organism.getOrganismTree(), "test1.xml");
-		/*
-		organism.setOrganismTree(null);
-		
-		OrganismTree oTree = Util.read("test1.xml");
-		organism.setOrganismTree(oTree);
 		*/
+		//Util.write(organism.getOrganismTree(), "test1.xml");
+				
+		OrganismTree oTree = Util.read("test1.xml");
+		OrganismFactory organismFactory = OrganismFactory.getInstance();
+		organismFactory.init(this);
+		System.out.println(organismNode);
+		Organism organism = organismFactory.createFromTree(oTree, organismNode);
 		
 		setStartPosition(organismNode.getWorldBound().getCenter());
 		rootNode.attachChild(organism.getOrganismJme().getNode());
