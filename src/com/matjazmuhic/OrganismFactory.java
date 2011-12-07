@@ -13,7 +13,6 @@ import com.jme3.scene.Spatial;
 import com.matjazmuhic.tree.BasicNode;
 import com.matjazmuhic.tree.BlockNode;
 import com.matjazmuhic.tree.IBlockNode;
-import com.matjazmuhic.tree.ITreeNode;
 import com.matjazmuhic.tree.OrganismTree;
 import com.matjazmuhic.util.Dimensions;
 import com.matjazmuhic.util.JointProperties;
@@ -26,15 +25,16 @@ public class OrganismFactory
 {
 	int maxDepth = 10;
 	int maxNodes = 10;
-	int chanceToCreateNode = 5;
+	int chanceToCreateNode = 2;
 	
 	float jointOffset = 0.0f;
 	int jointTimePeriod = 5000;
 	int jointTimeInterval = 250;
+	
 	boolean collisionBetweenLinkedBodys = false;
 	
 	Random r;
-	boolean passWithoutChance = false;
+
 	int numNodes = 1;
 	
 	private static OrganismFactory instance = null;
@@ -68,7 +68,7 @@ public class OrganismFactory
 		Organism organism = new Organism(oTree, oJme);
 			
 		createRandomRoot(organism);
-		createRecursively(organism.getOrganismTree().getRoot(), node, maxDepth, organism.getOrganismJme().getJointsMap());
+		createRecursively(organism.getOrganismTree().getRoot(), node, 0, organism.getOrganismJme().getJointsMap());
 		
 		for(Map.Entry<HingeJoint, JointProperties> entry: oJme.getJointsMap().entrySet())
 		{
@@ -81,6 +81,7 @@ public class OrganismFactory
 			t.start();
 			oJme.timerThreads.add(t);
 		}	
+		System.out.println("Num nodes: "+numNodes+"  Num joints: "+oJme.getJointsMap().size());
 		
 		return organism;
 	}
@@ -98,6 +99,7 @@ public class OrganismFactory
 	{
 		if(depth <= this.maxDepth)
 		{
+			System.out.println("Depth:"+depth);
 			for(int i=0; i<6; i++)
 			{
 				/*
@@ -112,7 +114,7 @@ public class OrganismFactory
 					passWithoutChance = true;
 				}
 				*/
-				if(r.nextInt(chanceToCreateNode)>0 /*|| passWithoutChance*/)
+				if(r.nextInt(chanceToCreateNode)!=0 && numNodes<maxNodes)
 				{
 					Dimensions d = Util.getRandomDimensions();
 					JointProperties jp = Util.getRandomJointProps();
@@ -132,16 +134,19 @@ public class OrganismFactory
 					boolean collidesWithOtherNodes = Util.collidesWithOtherNodes(geometry, sceneNode);
 					if(!collidesWithOtherNodes)
 					{
-
+						System.out.println(i+" does not collide....");
 						HingeJoint joint = makeJoint(geometry, parentSpatial, node, newNode, jp, p, pi);
 						jointsMap.put(joint, jp);
 						sceneNode.attachChild(geometry);
 						
 						numNodes++;
-					
+						createRecursively(newNode, sceneNode, depth+1, jointsMap);
 					}
-					createRecursively(newNode, sceneNode, depth+1, jointsMap);
-					passWithoutChance = false;
+					else
+					{
+						node.getChildren()[i]=null;
+					}
+					
 				}
 				else
 				{
@@ -192,7 +197,6 @@ public class OrganismFactory
 			if(childNode==null)
 				continue;
 			
-			Dimensions d = childNode.getDimensions();
 			JointProperties jp = childNode.getJointProperties();
 	
 			Util.JmeObject jmeObject = Util.createJmeNode(childNode.getDimensions(), app, childNode.getGeometryId()); 

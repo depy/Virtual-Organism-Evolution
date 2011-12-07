@@ -63,7 +63,7 @@ public class OrganismEvolution extends SimpleApplication
 	@Override
 	public void simpleInitApp()
 	{
-		Logger.getLogger("com.jme3").setLevel(Level.FINEST);
+		Logger.getLogger("com.jme3").setLevel(Level.SEVERE);
 		
 		mapKeys();
 		initCamera();
@@ -71,18 +71,25 @@ public class OrganismEvolution extends SimpleApplication
 		System.out.println(organismNode);
 		organismNode = new Node();
 		System.out.println(organismNode);
-		/*
+		
+		/* Generate */ 
+		
 		OrganismFactory organismFactory = OrganismFactory.getInstance();
 		organismFactory.init(this);
 		organism = organismFactory.createRandomOrganism(organismNode);
-		*/
+		
+		
+		/* Write to XML */
 		//Util.write(organism.getOrganismTree(), "test1.xml");
-				
+		
+		/* Read from XML */
+		/*
 		OrganismTree oTree = Util.read("test1.xml");
 		OrganismFactory organismFactory = OrganismFactory.getInstance();
 		organismFactory.init(this);
 		System.out.println(organismNode);
-		Organism organism = organismFactory.createFromTree(oTree, organismNode);
+		organism = organismFactory.createFromTree(oTree, organismNode);
+		*/
 		
 		setStartPosition(organismNode.getWorldBound().getCenter());
 		rootNode.attachChild(organism.getOrganismJme().getNode());
@@ -117,7 +124,7 @@ public class OrganismEvolution extends SimpleApplication
 		bulletAppState.setEnabled(true);
 		stateManager.attach(bulletAppState);
 		
-		bulletAppState.getPhysicsSpace().setGravity(new Vector3f(0.0f, -100.0f, 0.0f));
+		bulletAppState.getPhysicsSpace().setGravity(new Vector3f(0.0f, -200.0f, 0.0f));
 		bulletAppState.getPhysicsSpace().setAccuracy(0.005f);
 		bulletAppState.getPhysicsSpace().enableDebug(assetManager);
 	}
