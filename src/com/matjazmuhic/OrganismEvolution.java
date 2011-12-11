@@ -22,6 +22,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
+import com.matjazmuhic.ga.GeneticUtil;
 import com.matjazmuhic.tree.OrganismTree;
 import com.matjazmuhic.util.KeyInputActionListener;
 import com.matjazmuhic.util.Util;
@@ -73,11 +74,11 @@ public class OrganismEvolution extends SimpleApplication
 		System.out.println(organismNode);
 		
 		/* Generate */ 
-		
+		/*
 		OrganismFactory organismFactory = OrganismFactory.getInstance();
 		organismFactory.init(this);
 		organism = organismFactory.createRandomOrganism(organismNode);
-		
+		*/
 		
 		/* Write to XML */
 		//Util.write(organism.getOrganismTree(), "test1.xml");
@@ -90,6 +91,17 @@ public class OrganismEvolution extends SimpleApplication
 		System.out.println(organismNode);
 		organism = organismFactory.createFromTree(oTree, organismNode);
 		*/
+		
+		/* Read 2 from XML and crossover */
+		
+		OrganismTree oTree1 = Util.read("462eef48-844c-46e8-9f4c-6eb7d1a02d0a.xml");
+		OrganismTree oTree2 = Util.read("9d67d6b3-9b5c-43d5-81d7-b5d43f230781.xml");
+		OrganismTree newTree = GeneticUtil.crossover(oTree1, oTree2);
+		
+		OrganismFactory organismFactory = OrganismFactory.getInstance();
+		organismFactory.init(this);
+		System.out.println(organismNode);
+		organism = organismFactory.createFromTree(newTree, organismNode);
 		
 		setStartPosition(organismNode.getWorldBound().getCenter());
 		rootNode.attachChild(organism.getOrganismJme().getNode());
@@ -133,6 +145,15 @@ public class OrganismEvolution extends SimpleApplication
 	{
 		inputManager.addMapping("toggleShowWireframe", new KeyTrigger(KeyInput.KEY_T));
 		inputManager.addListener(actionListener, "toggleShowWireframe");
+		
+		inputManager.addMapping("camBackwards", new KeyTrigger(KeyInput.KEY_S));
+		inputManager.addListener(actionListener, "camBackwards");
+		
+		inputManager.addMapping("camForwards", new KeyTrigger(KeyInput.KEY_W));
+		inputManager.addListener(actionListener, "camForwards");
+		
+		inputManager.addMapping("saveOrganismToXml", new KeyTrigger(KeyInput.KEY_X));
+		inputManager.addListener(actionListener, "saveOrganismToXml");
 	}
 	
 	private void addFloor(Node node)

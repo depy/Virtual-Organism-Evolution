@@ -13,6 +13,7 @@ import com.jme3.scene.Spatial;
 import com.matjazmuhic.tree.BasicNode;
 import com.matjazmuhic.tree.BlockNode;
 import com.matjazmuhic.tree.IBlockNode;
+import com.matjazmuhic.tree.OccupiedNode;
 import com.matjazmuhic.tree.OrganismTree;
 import com.matjazmuhic.util.Dimensions;
 import com.matjazmuhic.util.JointProperties;
@@ -24,7 +25,8 @@ import com.matjazmuhic.util.Util;
 public class OrganismFactory 
 {
 	int maxDepth = 10;
-	int maxNodes = 10;
+	int maxOrganismNodes = 10;
+	int maxNodes;
 	int chanceToCreateNode = 2;
 	
 	float jointOffset = 0.0f;
@@ -51,6 +53,7 @@ public class OrganismFactory
 		{
 			instance = new OrganismFactory();
 		}
+
 		return instance;
 	}
 	
@@ -58,6 +61,7 @@ public class OrganismFactory
 	{
 		this.app = app;
 		r = new Random();
+		maxNodes = r.nextInt(maxOrganismNodes);
 	}
 	
 	public Organism createRandomOrganism(Node node)
@@ -192,10 +196,13 @@ public class OrganismFactory
 	{
 		for(int i=0; i<node.getChildren().length; i++)
 		{		
-			BlockNode childNode = (BlockNode)node.getChildren()[i];
-			
-			if(childNode==null)
+			if(node.getChildren()[i]==null || node.getChildren()[i] instanceof OccupiedNode)
+			{
 				continue;
+			}
+			
+			BlockNode childNode = (BlockNode)node.getChildren()[i];
+
 			
 			JointProperties jp = childNode.getJointProperties();
 	

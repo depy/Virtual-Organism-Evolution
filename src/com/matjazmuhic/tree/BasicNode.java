@@ -1,6 +1,9 @@
 package com.matjazmuhic.tree;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import com.matjazmuhic.util.Dimensions;
@@ -82,6 +85,23 @@ public class BasicNode implements IBlockNode, Serializable
 	{
 		return geometryId;
 	}
+	
+	public int getChildPositionByGeometryId(String geometryId)
+	{
+		for(int i=0; i<8; i++)
+		{
+			if(this.children[i]!=null)
+			{
+				BlockNode child = (BlockNode)this.children[i];
+				if(child.getGeometryId()==geometryId)
+				{
+					return i;
+				}
+			}
+		}
+		
+		return -1;
+	}
 
 	//Needed for xml serialization
 	public void setChildren(ITreeNode[] children) 
@@ -102,6 +122,30 @@ public class BasicNode implements IBlockNode, Serializable
 	public void setGeometryId(String geometryId) 
 	{
 		this.geometryId = geometryId;
+	}
+
+	public BlockNode getRandomChild()
+	{
+		List<BlockNode> childList = new ArrayList<BlockNode>();
+		Random r = new Random();
+		
+		for(int i=0; i<8; i++)
+		{
+			if(this.getChildren()[i]!=null && !(this.getChildren()[i] instanceof OccupiedNode))
+			{
+				childList.add((BlockNode) this.getChildren()[i]);
+			}
+		}
+		
+		int numChildren = childList.size();
+		if(numChildren>0)
+		{
+			return (BlockNode)childList.get(r.nextInt(numChildren));
+		}
+		else
+		{
+			return null;
+		}
 	}
 	
 }
