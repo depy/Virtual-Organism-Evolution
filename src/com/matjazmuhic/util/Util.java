@@ -46,7 +46,8 @@ public class Util
 	public static Dimensions getRandomDimensions()
 	{
 		float f = r.nextInt(15)+5;
-		return new Dimensions(r.nextFloat()*f, r.nextFloat()*f, r.nextFloat()*f);
+		float g = 1;
+		return new Dimensions(r.nextFloat()*f+g, r.nextFloat()*f+g, r.nextFloat()*f+g);
 	}
 	
 	public static JointProperties getRandomJointProps()
@@ -56,8 +57,8 @@ public class Util
 		float lowerLimit = (r.nextFloat()*1.57f)-1.57f;
 		float upperLimit = r.nextFloat()*1.57f;	
 		boolean collisions = false;
-		float motorTargetVelocity = r.nextFloat()*60f;
-		float motorMaxImpulse = getRandomFloatTenth()*2.0f;
+		float motorTargetVelocity = r.nextFloat()*80f;
+		float motorMaxImpulse = getRandomFloatTenth()*4.0f;
 		int timePeriod = r.nextInt(4500)+500;
 		int timeInterval = timerTimeInterval;
 		int timeRange = timePeriod / timeInterval;
@@ -115,18 +116,22 @@ public class Util
 		return new Vector3f(r.nextFloat(), r.nextFloat(), r.nextFloat());
 	}
 	
-	public static boolean collidesWithOtherNodes(Geometry geometry, Node sceneNode)
+	public static boolean collidesWithOtherNodes(Geometry geometry, Node sceneNode, String excludeName)
 	{
 		List<Spatial> spatials = sceneNode.getChildren();
 		
 		for(int i=0; i<spatials.size(); i++)
 		{
-			BoundingVolume boundingVolume = spatials.get(i).getWorldBound();
-			CollisionResults results = new CollisionResults();
-			geometry.collideWith(boundingVolume, results);
-			if (results.size() > 0) 
-			{
-			    return true;
+			if(!spatials.get(i).getName().equals(excludeName))
+			{	
+				BoundingVolume boundingVolume = spatials.get(i).getWorldBound();
+				CollisionResults results = new CollisionResults();
+				geometry.collideWith(boundingVolume, results);
+				if (results.size() > 0) 
+				{
+					System.out.println(geometry.getName()+" collides with "+spatials.get(i).getName());
+				    return true;
+				}
 			}
 		}
 		return false;

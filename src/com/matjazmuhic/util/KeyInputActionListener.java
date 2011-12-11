@@ -10,6 +10,7 @@ import com.matjazmuhic.OrganismEvolution;
 public class KeyInputActionListener implements ActionListener
 {
 	private boolean showWireFrame = false;
+	private boolean physicsEnabled = true;
 	private OrganismEvolution app;
 	
 	public KeyInputActionListener(OrganismEvolution app)
@@ -52,6 +53,20 @@ public class KeyInputActionListener implements ActionListener
     		UUID uuid = UUID.randomUUID();
     		System.out.println("Saving organism to "+uuid.toString()+".xml");
     		Util.write(app.organism.getOrganismTree(), uuid.toString()+".xml");
+    	}
+    	
+    	if(name.equals("togglePhysics") && !pressed)
+    	{
+    		if(physicsEnabled)
+    		{
+    			app.getBulletAppState().setEnabled(false);
+    			physicsEnabled = false;
+    		}
+    		else
+    		{
+    			app.getBulletAppState().setEnabled(true);
+    			physicsEnabled = true;
+    		}
     	}
     }
 }

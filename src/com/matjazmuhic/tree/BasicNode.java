@@ -13,6 +13,7 @@ public class BasicNode implements IBlockNode, Serializable
 {	
 	private static final long serialVersionUID = -4793425915946087029L;
 	
+	private int numAllNodes;
 	private ITreeNode[] children;
 	private Dimensions dimensions;
 	private int numChildren;
@@ -48,6 +49,17 @@ public class BasicNode implements IBlockNode, Serializable
 			int inversePosition = Util.getInversePosition(position);
 			node.getChildren()[inversePosition] = new OccupiedNode();
 			this.numChildren++;
+			this.getRoot().setNumAllNodes(this.getRoot().getNumAllNodes()+1);
+		}
+	}
+	
+	public void removeChild(int position)
+	{
+		if(this.children[position]!=null && !(this.children[position] instanceof OccupiedNode))
+		{
+			this.children[position]=null;
+			this.numChildren--;
+			this.getRoot().setNumAllNodes(this.getRoot().getNumAllNodes()-1);
 		}
 	}
 	
@@ -102,28 +114,7 @@ public class BasicNode implements IBlockNode, Serializable
 		
 		return -1;
 	}
-
-	//Needed for xml serialization
-	public void setChildren(ITreeNode[] children) 
-	{
-		this.children = children;
-	}
-
-	public void setDimensions(Dimensions dimensions) 
-	{
-		this.dimensions = dimensions;
-	}
-
-	public void setNumChildren(int numChildren) 
-	{
-		this.numChildren = numChildren;
-	}
-
-	public void setGeometryId(String geometryId) 
-	{
-		this.geometryId = geometryId;
-	}
-
+	
 	public BlockNode getRandomChild()
 	{
 		List<BlockNode> childList = new ArrayList<BlockNode>();
@@ -147,5 +138,38 @@ public class BasicNode implements IBlockNode, Serializable
 			return null;
 		}
 	}
+
+	public int getNumAllNodes()
+	{
+		return numAllNodes;
+	}
+
+	public void setNumAllNodes(int numAllNodes) 
+	{
+		this.numAllNodes = numAllNodes;
+	}
+
+	//Needed for xml serialization
+	public void setChildren(ITreeNode[] children) 
+	{
+		this.children = children;
+	}
+
+	public void setDimensions(Dimensions dimensions) 
+	{
+		this.dimensions = dimensions;
+	}
+
+	public void setNumChildren(int numChildren) 
+	{
+		this.numChildren = numChildren;
+	}
+
+	public void setGeometryId(String geometryId) 
+	{
+		this.geometryId = geometryId;
+	}
+
+	
 	
 }

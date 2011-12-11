@@ -74,18 +74,18 @@ public class OrganismEvolution extends SimpleApplication
 		System.out.println(organismNode);
 		
 		/* Generate */ 
-		/*
+		
 		OrganismFactory organismFactory = OrganismFactory.getInstance();
 		organismFactory.init(this);
 		organism = organismFactory.createRandomOrganism(organismNode);
-		*/
+		
 		
 		/* Write to XML */
 		//Util.write(organism.getOrganismTree(), "test1.xml");
 		
 		/* Read from XML */
 		/*
-		OrganismTree oTree = Util.read("test1.xml");
+		OrganismTree oTree = Util.read("c729c0e1-c32e-423e-983c-f18541f6d8e7.xml");
 		OrganismFactory organismFactory = OrganismFactory.getInstance();
 		organismFactory.init(this);
 		System.out.println(organismNode);
@@ -93,8 +93,8 @@ public class OrganismEvolution extends SimpleApplication
 		*/
 		
 		/* Read 2 from XML and crossover */
-		
-		OrganismTree oTree1 = Util.read("462eef48-844c-46e8-9f4c-6eb7d1a02d0a.xml");
+		/*
+		OrganismTree oTree1 = Util.read("fc0d7129-46a5-43c7-8eb7-93f8c6950044.xml");
 		OrganismTree oTree2 = Util.read("9d67d6b3-9b5c-43d5-81d7-b5d43f230781.xml");
 		OrganismTree newTree = GeneticUtil.crossover(oTree1, oTree2);
 		
@@ -102,6 +102,7 @@ public class OrganismEvolution extends SimpleApplication
 		organismFactory.init(this);
 		System.out.println(organismNode);
 		organism = organismFactory.createFromTree(newTree, organismNode);
+		*/
 		
 		setStartPosition(organismNode.getWorldBound().getCenter());
 		rootNode.attachChild(organism.getOrganismJme().getNode());
@@ -154,6 +155,9 @@ public class OrganismEvolution extends SimpleApplication
 		
 		inputManager.addMapping("saveOrganismToXml", new KeyTrigger(KeyInput.KEY_X));
 		inputManager.addListener(actionListener, "saveOrganismToXml");
+		
+		inputManager.addMapping("togglePhysics", new KeyTrigger(KeyInput.KEY_P));
+		inputManager.addListener(actionListener, "togglePhysics");
 	}
 	
 	private void addFloor(Node node)

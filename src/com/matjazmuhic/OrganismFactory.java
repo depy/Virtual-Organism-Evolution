@@ -1,6 +1,8 @@
 package com.matjazmuhic;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -24,10 +26,11 @@ import com.matjazmuhic.util.Util;
 
 public class OrganismFactory 
 {
-	int maxDepth = 10;
+	int maxDepth = 3;
 	int maxOrganismNodes = 10;
+	int minOrganismNodes = 4;
 	int maxNodes;
-	int chanceToCreateNode = 2;
+	int chanceToCreateNode = 1;
 	
 	float jointOffset = 0.0f;
 	int jointTimePeriod = 5000;
@@ -72,6 +75,7 @@ public class OrganismFactory
 		Organism organism = new Organism(oTree, oJme);
 			
 		createRandomRoot(organism);
+		System.out.println("Root name = "+organism.getOrganismTree().getRoot().getGeometryId());
 		createRecursively(organism.getOrganismTree().getRoot(), node, 0, organism.getOrganismJme().getJointsMap());
 		
 		for(Map.Entry<HingeJoint, JointProperties> entry: oJme.getJointsMap().entrySet())
@@ -93,6 +97,7 @@ public class OrganismFactory
 	private void createRandomRoot(Organism organism)
 	{
 		IBlockNode root = new BasicNode(Util.getRandomDimensions());
+		((BasicNode)root).setNumAllNodes(1);
 		organism.getOrganismTree().setRoot(root);
 		Util.JmeObject jmeObject = Util.createJmeNode(root.getDimensions(), app, root.getGeometryId());
 		
@@ -103,23 +108,16 @@ public class OrganismFactory
 	{
 		if(depth <= this.maxDepth)
 		{
+			List<BlockNode> addedChildren = new ArrayList<BlockNode>();
 			System.out.println("Depth:"+depth);
-			for(int i=0; i<6; i++)
+			for(int i=0; i<8; i++)
 			{
-				/*
-				if(sceneNode.getChildren().size()>=maxNodes)
+				int numAllNodes = ((BasicNode)node).getRoot().getNumAllNodes();
+				if((r.nextInt(chanceToCreateNode)==0) && numNodes<maxNodes || (i==(8-minOrganismNodes+numAllNodes)))
 				{
-					break;
-				}
-				*/
-				/*
-				if(i==5 && numNodes==1)
-				{
-					passWithoutChance = true;
-				}
-				*/
-				if(r.nextInt(chanceToCreateNode)!=0 && numNodes<maxNodes)
-				{
+					boolean collidesWithOtherNodes = true;
+					
+						numAllNodes = ((BasicNode)node).getRoot().getNumAllNodes();
 					Dimensions d = Util.getRandomDimensions();
 					JointProperties jp = Util.getRandomJointProps();
 					BlockNode newNode= new BlockNode(d, jp);
@@ -134,8 +132,11 @@ public class OrganismFactory
 					Position pi = Position.getPosition(Util.getInversePosition(i));
 							
 					translateGeometry(geometry, parentSpatial, node, newNode, p, pi);
-					
-					boolean collidesWithOtherNodes = Util.collidesWithOtherNodes(geometry, sceneNode);
+					System.out.println("Created: "+newNode.getGeometryId()+" "+newNode.getDimensions());
+					System.out.println("=============== Testing collisions... ===============");
+					collidesWithOtherNodes = Util.collidesWithOtherNodes(geometry, sceneNode, node.getGeometryId());
+					System.out.println("");
+					System.out.println(i+" ===> "+numAllNodes+" => "+d+" "+jp);
 					if(!collidesWithOtherNodes)
 					{
 						System.out.println(i+" does not collide....");
@@ -144,11 +145,12 @@ public class OrganismFactory
 						sceneNode.attachChild(geometry);
 						
 						numNodes++;
-						createRecursively(newNode, sceneNode, depth+1, jointsMap);
+						addedChildren.add(newNode);
+						
 					}
 					else
 					{
-						node.getChildren()[i]=null;
+						node.removeChild(i);
 					}
 					
 				}
@@ -156,6 +158,10 @@ public class OrganismFactory
 				{
 					node.getChildren()[i] = null;
 				}
+			}
+			for(BlockNode child: addedChildren)
+			{
+				createRecursively(child, sceneNode, depth+1, jointsMap);
 			}
 		}
 	}
