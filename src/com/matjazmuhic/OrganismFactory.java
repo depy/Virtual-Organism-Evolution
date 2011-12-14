@@ -30,7 +30,7 @@ public class OrganismFactory
 	int maxOrganismNodes = 10;
 	int minOrganismNodes = 4;
 	int maxNodes;
-	int chanceToCreateNode = 1;
+	int chanceToCreateNode = 5;
 	
 	float jointOffset = 0.0f;
 	int jointTimePeriod = 5000;
@@ -75,7 +75,6 @@ public class OrganismFactory
 		Organism organism = new Organism(oTree, oJme);
 			
 		createRandomRoot(organism);
-		System.out.println("Root name = "+organism.getOrganismTree().getRoot().getGeometryId());
 		createRecursively(organism.getOrganismTree().getRoot(), node, 0, organism.getOrganismJme().getJointsMap());
 		
 		for(Map.Entry<HingeJoint, JointProperties> entry: oJme.getJointsMap().entrySet())
@@ -89,7 +88,6 @@ public class OrganismFactory
 			t.start();
 			oJme.timerThreads.add(t);
 		}	
-		System.out.println("Num nodes: "+numNodes+"  Num joints: "+oJme.getJointsMap().size());
 		
 		return organism;
 	}
@@ -109,7 +107,6 @@ public class OrganismFactory
 		if(depth <= this.maxDepth)
 		{
 			List<BlockNode> addedChildren = new ArrayList<BlockNode>();
-			System.out.println("Depth:"+depth);
 			for(int i=0; i<8; i++)
 			{
 				int numAllNodes = ((BasicNode)node).getRoot().getNumAllNodes();
@@ -132,14 +129,9 @@ public class OrganismFactory
 					Position pi = Position.getPosition(Util.getInversePosition(i));
 							
 					translateGeometry(geometry, parentSpatial, node, newNode, p, pi);
-					System.out.println("Created: "+newNode.getGeometryId()+" "+newNode.getDimensions());
-					System.out.println("=============== Testing collisions... ===============");
 					collidesWithOtherNodes = Util.collidesWithOtherNodes(geometry, sceneNode, node.getGeometryId());
-					System.out.println("");
-					System.out.println(i+" ===> "+numAllNodes+" => "+d+" "+jp);
 					if(!collidesWithOtherNodes)
 					{
-						System.out.println(i+" does not collide....");
 						HingeJoint joint = makeJoint(geometry, parentSpatial, node, newNode, jp, p, pi);
 						jointsMap.put(joint, jp);
 						sceneNode.attachChild(geometry);

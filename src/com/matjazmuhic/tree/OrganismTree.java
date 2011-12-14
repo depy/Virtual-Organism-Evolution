@@ -7,6 +7,7 @@ public class OrganismTree implements Serializable
 	private static final long serialVersionUID = 8474134536491791809L;
 	
 	IBlockNode root;
+	float score;
 	
 	public OrganismTree()
 	{
@@ -44,6 +45,16 @@ public class OrganismTree implements Serializable
 			}
 				
 		}
+	}
+
+	public float getScore()
+	{
+		return score;
+	}
+
+	public void setScore(float score)
+	{
+		this.score = score;
 	}
 		
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.jme3.app.SimpleApplication;
@@ -22,15 +23,15 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
-import com.matjazmuhic.ga.GeneticUtil;
-import com.matjazmuhic.tree.OrganismTree;
+import com.jme3.system.JmeContext;
+import com.matjazmuhic.util.Judge;
 import com.matjazmuhic.util.KeyInputActionListener;
-import com.matjazmuhic.util.Util;
 
-public class OrganismEvolution extends SimpleApplication
+public class OrganismEvolution extends SimpleApplication implements Runnable
 {
+	String testName;
+	float distance;
 	static OrganismEvolution app = null;
-	
 	private BulletAppState bulletAppState;
 	private Map<String, List<Material>> store = new HashMap<String, List<Material>>();
 	Geometry floor = null;
@@ -39,17 +40,29 @@ public class OrganismEvolution extends SimpleApplication
 	Vector3f startPosition = null;
 	public Organism organism;
 	
-	public static void main(String[] args)
+	public OrganismEvolution(String testName)
 	{
-		app = new OrganismEvolution();
+		this.testName = testName;
+		app = this;
+	}
+	
+	@Override
+	public void run() 
+	{
+		String testName = UUID.randomUUID().toString();
+		System.out.println("Running test "+testName);
 		
 		AppSettings settings = new AppSettings(true);
 		settings.setResolution(800,600);
 		
 		app.setShowSettings(false);
+		app.store.put("materials", new ArrayList<Material>());
 		app.start(/*JmeContext.Type.Headless*/);
 		
-		app.store.put("materials", new ArrayList<Material>());
+		Judge judge = new Judge(app);
+		Thread judgeThread = new Thread(judge);
+		judgeThread.start();
+
 	}
 	
 	@Override
@@ -64,14 +77,12 @@ public class OrganismEvolution extends SimpleApplication
 	@Override
 	public void simpleInitApp()
 	{
-		Logger.getLogger("com.jme3").setLevel(Level.SEVERE);
+		Logger.getLogger("com.jme3").setLevel(Level.OFF);
 		
 		mapKeys();
 		initCamera();
 		initPhysics();	
-		System.out.println(organismNode);
 		organismNode = new Node();
-		System.out.println(organismNode);
 		
 		/* Generate */ 
 		
@@ -104,7 +115,6 @@ public class OrganismEvolution extends SimpleApplication
 		organism = organismFactory.createFromTree(newTree, organismNode);
 		*/
 		
-		setStartPosition(organismNode.getWorldBound().getCenter());
 		rootNode.attachChild(organism.getOrganismJme().getNode());
 		addFloor(organismNode);
 	}
@@ -113,9 +123,12 @@ public class OrganismEvolution extends SimpleApplication
 	public void update() 
 	{
 		super.update();
+		System.out.println(startPosition);
 		if(this.startPosition!=null)
 		{
-			float distance = ((BoundingBox)(organismNode.getWorldBound())).distanceTo(startPosition);
+			Vector3f currentPos =  ((BoundingBox)(organismNode.getWorldBound())).getCenter();
+			float distance = currentPos.distance(startPosition);
+			//System.out.println("Distance traveled: "+distance);
 			if(distance > 1)
 			{
 				System.out.println("Distance traveled: "+distance);
@@ -169,7 +182,7 @@ public class OrganismEvolution extends SimpleApplication
 		Material matf = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 		matf.setColor("Color", ColorRGBA.LightGray);
 		floor.setMaterial(matf);
-		floor.setLocalTranslation(0, min.y-10.0f, 0);
+		floor.setLocalTranslation(0, min.y-2.0f, 0);
 		RigidBodyControl fc = new RigidBodyControl(0.0f);
 		floor.addControl(fc);
 		floor.getControl(RigidBodyControl.class).setFriction(1.0f);
@@ -191,9 +204,9 @@ public class OrganismEvolution extends SimpleApplication
 		return store;
 	}
 
-	public Node getOrganism()
+	public Organism getOrganism()
 	{
-		return organismNode;
+		return organism;
 	}
 
 	public Camera getMainCam() 
@@ -206,10 +219,24 @@ public class OrganismEvolution extends SimpleApplication
 		return startPosition;
 	}
 
-	public void setStartPosition(Vector3f startPosition) 
+	public void setStartPosition() 
 	{
-		System.out.println("Setting start position...");
-		this.startPosition = startPosition;
+		this.startPosition = organismNode.getWorldBound().getCenter().clone();
 	}
 
+	public float getDistance()
+	{
+		return distance;
+	}
+
+	public void setDistance(float distance) 
+	{
+		this.distance = distance;
+	}
+
+	public Vector3f getOrganismPosition() 
+	{
+		return  ((BoundingBox)(organismNode.getWorldBound())).getCenter();
+	}
+	
 }

@@ -94,6 +94,7 @@ public class Util
 	public static JmeObject createJmeNode(Dimensions d, OrganismEvolution app, String name)
 	{
 		Box b = new Box(d.x, d.y, d.z);
+		float mass = (d.x*d.y*d.z)/90;
 		Geometry geometry = new Geometry(name, b);
 		Material material = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
 		material.setColor("Color", ColorRGBA.randomColor());
