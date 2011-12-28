@@ -12,6 +12,7 @@ import java.util.Random;
 
 import javax.management.RuntimeErrorException;
 
+import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.collision.CollisionResults;
@@ -96,6 +97,8 @@ public class Util
 		Box b = new Box(d.x, d.y, d.z);
 		float mass = (d.x*d.y*d.z)/90;
 		Geometry geometry = new Geometry(name, b);
+		geometry.setModelBound(new BoundingBox());
+		geometry.updateModelBound();
 		Material material = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
 		material.setColor("Color", ColorRGBA.randomColor());
 		geometry.setMaterial(material);
@@ -136,36 +139,5 @@ public class Util
 			}
 		}
 		return false;
-	}
-	
-	public static void write(OrganismTree f, String filename)
-	{
-        XMLEncoder encoder = null;
-		try
-		{
-			encoder = new XMLEncoder(new BufferedOutputStream(new FileOutputStream("resources/com/matjazmuhic/organismStorage/"+filename)));
-		} 
-		catch (FileNotFoundException e) 
-		{
-			e.printStackTrace();
-		}
-        encoder.writeObject(f);
-        encoder.close();
-    }
-
-    public static OrganismTree read(String filename)
-    {
-        XMLDecoder decoder = null;
-		try 
-		{
-			decoder = new XMLDecoder(new BufferedInputStream(new FileInputStream("resources/com/matjazmuhic/organismStorage/"+filename)));
-		}
-		catch (FileNotFoundException e) 
-		{
-			e.printStackTrace();
-		}
-        OrganismTree o = (OrganismTree)decoder.readObject();
-        decoder.close();
-        return o;
-    }	
+	}	
 }

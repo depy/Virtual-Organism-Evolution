@@ -38,7 +38,7 @@ public class OrganismTimer extends Observable implements Runnable
 		}
 		catch(InterruptedException e)
 		{
-			System.out.println("Sleep interrupted...");
+			//System.out.println("Sleep interrupted...");
 		}
 	}
 }

@@ -37,32 +37,19 @@ public class OrganismFactory
 	int jointTimeInterval = 250;
 	
 	boolean collisionBetweenLinkedBodys = false;
-	
 	Random r;
-
 	int numNodes = 1;
 	
-	private static OrganismFactory instance = null;
 	private OrganismEvolution app = null;
 	
-	private OrganismFactory()
-	{
-		
-	}
-	
-	public static OrganismFactory getInstance()
-	{
-		if(instance==null)
-		{
-			instance = new OrganismFactory();
-		}
-
-		return instance;
-	}
-	
-	public void init(OrganismEvolution app)
+	public OrganismFactory(OrganismEvolution app)
 	{
 		this.app = app;
+		this.init();
+	}
+	
+	public void init()
+	{
 		r = new Random();
 		maxNodes = r.nextInt(maxOrganismNodes);
 	}
@@ -73,10 +60,8 @@ public class OrganismFactory
 		OrganismTree oTree = new OrganismTree();
 		OrganismJme oJme = new OrganismJme(node, jointsMap);
 		Organism organism = new Organism(oTree, oJme);
-			
 		createRandomRoot(organism);
 		createRecursively(organism.getOrganismTree().getRoot(), node, 0, organism.getOrganismJme().getJointsMap());
-		
 		for(Map.Entry<HingeJoint, JointProperties> entry: oJme.getJointsMap().entrySet())
 		{
 			HingeJoint hj = entry.getKey();
@@ -88,7 +73,6 @@ public class OrganismFactory
 			t.start();
 			oJme.timerThreads.add(t);
 		}	
-		
 		return organism;
 	}
 	
@@ -114,7 +98,7 @@ public class OrganismFactory
 				{
 					boolean collidesWithOtherNodes = true;
 					
-						numAllNodes = ((BasicNode)node).getRoot().getNumAllNodes();
+					numAllNodes = ((BasicNode)node).getRoot().getNumAllNodes();
 					Dimensions d = Util.getRandomDimensions();
 					JointProperties jp = Util.getRandomJointProps();
 					BlockNode newNode= new BlockNode(d, jp);
@@ -200,7 +184,6 @@ public class OrganismFactory
 			}
 			
 			BlockNode childNode = (BlockNode)node.getChildren()[i];
-
 			
 			JointProperties jp = childNode.getJointProperties();
 	
@@ -230,10 +213,19 @@ public class OrganismFactory
 		Dimensions parentDim = node.getDimensions();
 		Dimensions newNodeDim = newNode.getDimensions();
 		Vector3f translationVector = new Vector3f(p.x*(parentDim.x+newNodeDim.x), p.y*(parentDim.y+newNodeDim.y), p.z*(parentDim.z+newNodeDim.z));
-		Vector3f parentTranslation = parentSpatial.getWorldTranslation();
+		Vector3f parentTranslation = parentSpatial.getLocalTranslation();
 		Vector3f desiredTranslation = parentTranslation.add(translationVector);
 		geometry.setLocalTranslation(desiredTranslation);
 		geometry.getControl(RigidBodyControl.class).setPhysicsLocation(geometry.getLocalTranslation());
+		
+		
+		/*
+		Dimensions parentDim = node.getDimensions();
+		Dimensions newNodeDim = newNode.getDimensions();
+		Vector3f translationVector = new Vector3f(p.x*(parentDim.x+newNodeDim.x), p.y*(parentDim.y+newNodeDim.y), p.z*(parentDim.z+newNodeDim.z));
+		geometry.move(translationVector);
+		geometry.getControl(RigidBodyControl.class).setPhysicsLocation(geometry.getWorldTranslation());
+		*/
 	}
 	
 	private HingeJoint makeJoint(Geometry geometry, Spatial parentSpatial, IBlockNode parentNode, BlockNode newNode, JointProperties jp, Position p, Position pi)
@@ -243,6 +235,7 @@ public class OrganismFactory
 		Vector3f jPivotA = new Vector3f((pi.x*(newNodeDim.x+jointOffset)), (pi.y*(newNodeDim.y+jointOffset)), (pi.z*(newNodeDim.z+jointOffset)));
 		Vector3f jPivotB = new Vector3f((p.x*(parentDim.x+jointOffset)), (p.y*(parentDim.y+jointOffset)), (p.z*(parentDim.z+jointOffset)));
 		
+		/*
 		HingeJoint joint = new HingeJoint(
 				geometry.getControl(RigidBodyControl.class),
  				parentSpatial.getControl(RigidBodyControl.class),
@@ -251,9 +244,21 @@ public class OrganismFactory
  				Util.getRandomVector().normalize(),
  				Util.getRandomVector().normalize()
  				);
+		*/
+		
+		
+		HingeJoint joint = new HingeJoint(
+				geometry.getControl(RigidBodyControl.class),
+ 				parentSpatial.getControl(RigidBodyControl.class),
+ 				jPivotA,
+ 				jPivotB,
+ 				Util.simpleVectorToVector3f(jp.getAxis1()).normalize(),
+ 				Util.simpleVectorToVector3f(jp.getAxis2()).normalize()
+ 				);
+		
 		
 		joint.setCollisionBetweenLinkedBodys(collisionBetweenLinkedBodys);
-		joint.setLimit(-1.57f, 1.57f);
+		joint.setLimit(jp.getLowerLimit(), jp.getUpperLimit());
 		app.getBulletAppState().getPhysicsSpace().add(joint);
 		return joint;
 	}

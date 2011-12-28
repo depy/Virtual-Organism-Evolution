@@ -1,5 +1,10 @@
 package com.matjazmuhic;
 
+import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
+import com.matjazmuhic.tree.IBlockNode;
 import com.matjazmuhic.tree.OrganismTree;
 
 public class Organism 
@@ -33,6 +38,16 @@ public class Organism
 		for(Thread t: organismJme.timerThreads)
 		{
 			t.interrupt();
+		}
+	}
+	
+	public void move(Vector3f location)
+	{
+		Node node = organismJme.getNode();
+		for(Spatial s: node.getChildren())
+		{
+			s.move(location);
+			s.getControl(RigidBodyControl.class).setPhysicsLocation(s.getLocalTranslation());
 		}
 	}
 	

@@ -1,17 +1,21 @@
 package com.matjazmuhic.util;
 
+import java.util.UUID;
+
 import com.jme3.math.Vector3f;
+import com.matjazmuhic.Organism;
 import com.matjazmuhic.OrganismEvolution;
+import com.matjazmuhic.persistence.OrganismRepository;
 
 public class Judge implements Runnable
 {
 	Vector3f startPosition;
 	Vector3f endPosition;
-	OrganismEvolution app;
+	Organism organism;
 	
-	public Judge(OrganismEvolution app)
+	public Judge(Organism organism)
 	{
-		this.app = app;
+		this.organism = organism;
 	}
 	
 	@Override
@@ -19,20 +23,15 @@ public class Judge implements Runnable
 	{
 		try 
 		{
-			System.out.println("Judge running");
 			Thread.sleep(6000);
-			app.setStartPosition();
-			startPosition = this.app.getStartPosition();
-			System.out.println("Running test...");
+			startPosition = (organism.getOrganismJme().getNode().getWorldBound()).getCenter().clone();
 			Thread.sleep(15000);
-			endPosition = app.getOrganismPosition();
+			endPosition = (organism.getOrganismJme().getNode().getWorldBound()).getCenter().clone();
 			float distance = endPosition.distance(startPosition);
-			app.setDistance(distance);
-			app.getOrganism().getOrganismTree().setScore(distance);
-			
-			Util.write(app.getOrganism().getOrganismTree(), "test-judge-write-1.xml");
-			
-			app.destroy();
+			System.out.println("Distance: "+distance);
+			organism.getOrganismTree().setScore(distance);
+			String name = UUID.randomUUID().toString();
+			OrganismRepository.writeToXml(organism.getOrganismTree(), name);
 		}
 		catch (InterruptedException e) 
 		{

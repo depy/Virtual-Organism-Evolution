@@ -6,6 +6,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.matjazmuhic.OrganismEvolution;
+import com.matjazmuhic.persistence.OrganismRepository;
 
 public class KeyInputActionListener implements ActionListener
 {
@@ -47,12 +48,22 @@ public class KeyInputActionListener implements ActionListener
     	{
     		app.getMainCam().setLocation(app.getMainCam().getLocation().subtract(new Vector3f(0f, 0f, -10f)));
     	}
+    	if(name.equals("camUp"))
+    	{
+    		app.getMainCam().setLocation(app.getMainCam().getLocation().subtract(new Vector3f(0f, 10f, 0f)));
+    	}
+    	if(name.equals("camDown") && !pressed)
+    	{
+    		app.getMainCam().setLocation(app.getMainCam().getLocation().subtract(new Vector3f(0f, -10f, 0f)));
+    	}
 
     	if(name.equals("saveOrganismToXml") && !pressed)
     	{
+    		/*
     		UUID uuid = UUID.randomUUID();
     		System.out.println("Saving organism to "+uuid.toString()+".xml");
-    		Util.write(app.organism.getOrganismTree(), uuid.toString()+".xml");
+    		OrganismRepository.writeToXml(app.organism.getOrganismTree(), uuid.toString()+".xml");
+    		*/
     	}
     	
     	if(name.equals("togglePhysics") && !pressed)
@@ -68,5 +79,6 @@ public class KeyInputActionListener implements ActionListener
     			physicsEnabled = true;
     		}
     	}
+    	
     }
 }

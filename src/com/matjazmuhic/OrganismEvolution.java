@@ -21,55 +21,55 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
+import com.jme3.scene.shape.Sphere;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.matjazmuhic.util.Judge;
 import com.matjazmuhic.util.KeyInputActionListener;
 
-public class OrganismEvolution extends SimpleApplication implements Runnable
+public class OrganismEvolution extends SimpleApplication
 {
+	boolean headless = false;
+	boolean showDistance = false;
 	String testName;
 	float distance;
-	static OrganismEvolution app = null;
 	private BulletAppState bulletAppState;
 	private Map<String, List<Material>> store = new HashMap<String, List<Material>>();
 	Geometry floor = null;
-	Node organismNode;
 	Camera mainCam;
 	Vector3f startPosition = null;
-	public Organism organism;
+	List<Thread> judgeThreads;
+	List<Organism> organismList;
 	
-	public OrganismEvolution(String testName)
+	public OrganismEvolution()
 	{
-		this.testName = testName;
-		app = this;
 	}
 	
-	@Override
-	public void run() 
+	public static void main(String[] args) 
 	{
-		String testName = UUID.randomUUID().toString();
-		System.out.println("Running test "+testName);
+		OrganismEvolution app = new OrganismEvolution();
+		
+		app.judgeThreads = new ArrayList<Thread>();
+		app.organismList = new ArrayList<Organism>();
 		
 		AppSettings settings = new AppSettings(true);
-		settings.setResolution(800,600);
+		settings.setResolution(1024,768);
 		
+		app.setSettings(settings);
 		app.setShowSettings(false);
 		app.store.put("materials", new ArrayList<Material>());
-		app.start(/*JmeContext.Type.Headless*/);
-		
-		Judge judge = new Judge(app);
-		Thread judgeThread = new Thread(judge);
-		judgeThread.start();
 
-	}
-	
-	@Override
-	public void destroy() 
-	{
-		organism.notifyDestroy();
-		super.destroy();
+		if(app.headless)
+		{
+			app.start(JmeContext.Type.Headless);
+		}
+		else
+		{
+			app.start();
+		}
+		
 	}
 	
 	private ActionListener actionListener = new KeyInputActionListener(this);
@@ -82,13 +82,27 @@ public class OrganismEvolution extends SimpleApplication implements Runnable
 		mapKeys();
 		initCamera();
 		initPhysics();	
-		organismNode = new Node();
 		
-		/* Generate */ 
+		/* Generate */
 		
-		OrganismFactory organismFactory = OrganismFactory.getInstance();
-		organismFactory.init(this);
-		organism = organismFactory.createRandomOrganism(organismNode);
+		for(int i=0; i<10; i++)
+		{
+			
+			Node organismNode = new Node();
+			rootNode.attachChild(organismNode);
+			Organism organism = new OrganismFactory(this).createRandomOrganism(organismNode);	
+			organismList.add(organism);
+			organism.move(new Vector3f(0.0f, i*200.0f, 0.0f));
+			addFloor(organismNode);
+			
+			/*
+			Judge judge = new Judge(organism);
+			Thread judgeThread = new Thread(judge);
+			judgeThreads.add(judgeThread);
+			judgeThread.start();
+			*/
+
+		}
 		
 		
 		/* Write to XML */
@@ -96,9 +110,7 @@ public class OrganismEvolution extends SimpleApplication implements Runnable
 		
 		/* Read from XML */
 		/*
-		OrganismTree oTree = Util.read("c729c0e1-c32e-423e-983c-f18541f6d8e7.xml");
-		OrganismFactory organismFactory = OrganismFactory.getInstance();
-		organismFactory.init(this);
+		OrganismTree oTree = OrganismRepository.readFromXml("27225eb7-d95d-48db-94f2-c72eb4fd5ce2");
 		System.out.println(organismNode);
 		organism = organismFactory.createFromTree(oTree, organismNode);
 		*/
@@ -109,31 +121,34 @@ public class OrganismEvolution extends SimpleApplication implements Runnable
 		OrganismTree oTree2 = Util.read("9d67d6b3-9b5c-43d5-81d7-b5d43f230781.xml");
 		OrganismTree newTree = GeneticUtil.crossover(oTree1, oTree2);
 		
-		OrganismFactory organismFactory = OrganismFactory.getInstance();
-		organismFactory.init(this);
 		System.out.println(organismNode);
 		organism = organismFactory.createFromTree(newTree, organismNode);
 		*/
 		
-		rootNode.attachChild(organism.getOrganismJme().getNode());
-		addFloor(organismNode);
+		
 	}
 	
 	@Override
 	public void update() 
 	{
 		super.update();
-		System.out.println(startPosition);
-		if(this.startPosition!=null)
+	};
+	
+	@Override
+	public void destroy() 
+	{
+		for(Thread t: judgeThreads)
 		{
-			Vector3f currentPos =  ((BoundingBox)(organismNode.getWorldBound())).getCenter();
-			float distance = currentPos.distance(startPosition);
-			//System.out.println("Distance traveled: "+distance);
-			if(distance > 1)
-			{
-				System.out.println("Distance traveled: "+distance);
-			}
+			t.interrupt();
 		}
+		
+		for(Organism organism: organismList)
+		{
+			organism.notifyDestroy();
+		}
+		
+		super.destroy();
+		
 	};
 		
 	private void initCamera()
@@ -166,32 +181,41 @@ public class OrganismEvolution extends SimpleApplication implements Runnable
 		inputManager.addMapping("camForwards", new KeyTrigger(KeyInput.KEY_W));
 		inputManager.addListener(actionListener, "camForwards");
 		
+		inputManager.addMapping("camUp", new KeyTrigger(KeyInput.KEY_Q));
+		inputManager.addListener(actionListener, "camUp");
+		
+		inputManager.addMapping("camDown", new KeyTrigger(KeyInput.KEY_E));
+		inputManager.addListener(actionListener, "camDown");
+		
 		inputManager.addMapping("saveOrganismToXml", new KeyTrigger(KeyInput.KEY_X));
 		inputManager.addListener(actionListener, "saveOrganismToXml");
 		
 		inputManager.addMapping("togglePhysics", new KeyTrigger(KeyInput.KEY_P));
 		inputManager.addListener(actionListener, "togglePhysics");
+		
+		inputManager.addMapping("testMove", new KeyTrigger(KeyInput.KEY_L));
+		inputManager.addListener(actionListener, "testMove");
+		
 	}
 	
 	private void addFloor(Node node)
 	{
 		Vector3f min = ((BoundingBox)node.getWorldBound()).getMin(null);
-		Box f = new Box(Vector3f.ZERO, 1000.0f, 1.f, 1000.f);
+		Box f = new Box(Vector3f.ZERO, 500.0f, 2.0f, 500.f);
 		floor = new Geometry("floor", f);
 		floor.setShadowMode(ShadowMode.Receive);
 		Material matf = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 		matf.setColor("Color", ColorRGBA.LightGray);
 		floor.setMaterial(matf);
-		floor.setLocalTranslation(0, min.y-2.0f, 0);
+		floor.move(0, min.y-20.0f, 0);
 		RigidBodyControl fc = new RigidBodyControl(0.0f);
 		floor.addControl(fc);
-		floor.getControl(RigidBodyControl.class).setFriction(1.0f);
-		fc.setPhysicsLocation(floor.getLocalTranslation());
+		floor.getControl(RigidBodyControl.class).setFriction(10.0f);
+		fc.setPhysicsLocation(floor.getWorldTranslation());
 		bulletAppState.getPhysicsSpace().add(floor);
 		floor.setShadowMode(ShadowMode.Receive);
 		rootNode.attachChild(floor);
 	}
-
 	
 	//Getters
 	public BulletAppState getBulletAppState()
@@ -204,39 +228,9 @@ public class OrganismEvolution extends SimpleApplication implements Runnable
 		return store;
 	}
 
-	public Organism getOrganism()
-	{
-		return organism;
-	}
-
 	public Camera getMainCam() 
 	{
 		return mainCam;
-	}
-
-	public Vector3f getStartPosition() 
-	{
-		return startPosition;
-	}
-
-	public void setStartPosition() 
-	{
-		this.startPosition = organismNode.getWorldBound().getCenter().clone();
-	}
-
-	public float getDistance()
-	{
-		return distance;
-	}
-
-	public void setDistance(float distance) 
-	{
-		this.distance = distance;
-	}
-
-	public Vector3f getOrganismPosition() 
-	{
-		return  ((BoundingBox)(organismNode.getWorldBound())).getCenter();
 	}
 	
 }

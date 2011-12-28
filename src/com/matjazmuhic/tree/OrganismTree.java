@@ -2,7 +2,7 @@ package com.matjazmuhic.tree;
 
 import java.io.Serializable;
 
-public class OrganismTree implements Serializable
+public class OrganismTree implements Serializable, Comparable<OrganismTree>
 {
 	private static final long serialVersionUID = 8474134536491791809L;
 	
@@ -55,6 +55,12 @@ public class OrganismTree implements Serializable
 	public void setScore(float score)
 	{
 		this.score = score;
+	}
+
+	@Override
+	public int compareTo(OrganismTree oTree)
+	{
+		return (int)(this.score - oTree.score);
 	}
 		
 }
