@@ -1,9 +1,5 @@
 package com.matjazmuhic.tree;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import com.matjazmuhic.util.Dimensions;
 import com.matjazmuhic.util.JointProperties;
 
@@ -23,6 +19,33 @@ public class BlockNode extends BasicNode
 	{
 		super(dimensions);
 		this.jointProperties = jointProperties;
+	}
+	
+	public void remove()
+	{
+		int pos = ((BasicNode)this.parent).getChildPositionByGeometryId(this.getGeometryId());
+		this.parent.removeChild(pos);
+	}
+	
+	public void setAsRoot()
+	{
+		BlockNode self = this;
+		
+		setRootRecursively(self, self);
+	}
+	
+	private void setRootRecursively(BlockNode selfRef, BlockNode currentNode)
+	{
+		BlockNode node = currentNode;
+
+		ITreeNode[] children = node.getChildren();
+			
+		for(int i=0; i<children.length; i++)
+		{
+			BasicNode child = (BasicNode)children[i];
+			child.setRoot(selfRef);
+			setRootRecursively(selfRef, node);
+		}
 	}
 	
 	public IBlockNode getParent()
@@ -45,5 +68,5 @@ public class BlockNode extends BasicNode
 	{
 		this.jointProperties = jointProperties;
 	}
-		
+	
 }

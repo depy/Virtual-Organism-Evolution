@@ -8,27 +8,34 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.matjazmuhic.Organism;
 import com.matjazmuhic.tree.OrganismTree;
-
-import de.lessvoid.nifty.tools.StopWatch;
 
 public class OrganismRepository 
 {
-	static Map<Integer, Collection<OrganismTree>> storage; 
+	static Map<Integer, List<OrganismTree>> storage = new HashMap<Integer, List<OrganismTree>>();
 	
-	public OrganismRepository()
+	private static OrganismRepository instance = null;
+	
+	protected OrganismRepository()
 	{
-		this.storage = new HashMap<Integer, Collection<OrganismTree>>();
 	}
 	
-	public static void writeToXml(OrganismTree f, String filename)
+	public static OrganismRepository getInstance()
 	{
+		if(instance==null)
+		{
+			instance = new OrganismRepository();
+		}
+		return instance;
+	}
+	
+	public void writeToXml(OrganismTree f, String filename)
+	{
+		
         XMLEncoder encoder = null;
 		try
 		{
@@ -42,7 +49,7 @@ public class OrganismRepository
         encoder.close();
     }
 
-    public static OrganismTree readFromXml(String filename)
+    public OrganismTree readFromXml(String filename)
     {
         XMLDecoder decoder = null;
 		try 
@@ -58,17 +65,36 @@ public class OrganismRepository
         return o;
     }	
     
-    public static void save(OrganismTree oTree, int generation)
+    public void save(OrganismTree oTree, int generation)
     {
-    	Collection<OrganismTree> organisms = storage.get(generation);
+    	List<OrganismTree> organisms;
     	
-    	if(organisms==null)
+    	if(!storage.containsKey(generation))
     	{
     		organisms = new ArrayList<OrganismTree>();
     		storage.put(generation, organisms);
     	}
+    	else
+    	{
+    		organisms = storage.get(generation);
+    	}
     	
     	organisms.add(oTree);
+    }
+    
+    public void printResults()
+    {
+    	for(Map.Entry<Integer, List<OrganismTree>> entry: storage.entrySet())
+    	{
+    		System.out.println("Generation "+entry.getKey());
+    		List<OrganismTree> organismList = entry.getValue();
+    		Collections.sort(organismList);
+    		
+    		for(OrganismTree oTree: organismList)
+    		{
+    			System.out.println("Subject "+oTree.toString()+" scored "+oTree.getScore());
+    		}
+    	}
     }
     
 }

@@ -1,9 +1,10 @@
-package com.matjazmuhic.util;
+package com.matjazmuhic.physics;
 
 import java.util.Observable;
 import java.util.Observer;
 
 import com.jme3.bullet.joints.HingeJoint;
+import com.matjazmuhic.util.JointProperties;
 
 public class MotorObserver implements Observer
 {

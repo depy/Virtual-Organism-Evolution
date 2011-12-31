@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.bulletphysics.collision.broadphase.CollisionFilterGroups;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.BulletAppState;
@@ -21,37 +22,46 @@ import com.jme3.renderer.Camera;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
-import com.jme3.scene.shape.Sphere;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
+import com.matjazmuhic.ga.GaManager;
+import com.matjazmuhic.ga.GeneticUtil;
+import com.matjazmuhic.persistence.OrganismRepository;
+import com.matjazmuhic.persistence.PropertiesStore;
+import com.matjazmuhic.tree.OrganismTree;
 import com.matjazmuhic.util.Judge;
 import com.matjazmuhic.util.KeyInputActionListener;
 
 public class OrganismEvolution extends SimpleApplication
 {
-	boolean headless = false;
-	boolean showDistance = false;
-	String testName;
-	float distance;
-	private BulletAppState bulletAppState;
-	private Map<String, List<Material>> store = new HashMap<String, List<Material>>();
+	boolean headless;
+	BulletAppState bulletAppState;
+	Map<String, List<Material>> materialsStore = new HashMap<String, List<Material>>();
+	List<Thread> judgesList;
+	List<Organism> organismList;
+	KeyInputActionListener keyActionListener;
+	
 	Geometry floor = null;
 	Camera mainCam;
 	Vector3f startPosition = null;
-	List<Thread> judgeThreads;
-	List<Organism> organismList;
+	
+	public Organism organism;
+	public Organism organism2;
 	
 	public OrganismEvolution()
 	{
+		keyActionListener = new KeyInputActionListener(this);
 	}
 	
 	public static void main(String[] args) 
 	{
 		OrganismEvolution app = new OrganismEvolution();
 		
-		app.judgeThreads = new ArrayList<Thread>();
+		System.out.println("headless = "+PropertiesStore.getIstance().get("headless"));
+		app.headless = Boolean.parseBoolean(PropertiesStore.getIstance().get("headless"));
+		
+		app.judgesList = new ArrayList<Thread>();
 		app.organismList = new ArrayList<Organism>();
 		
 		AppSettings settings = new AppSettings(true);
@@ -59,7 +69,7 @@ public class OrganismEvolution extends SimpleApplication
 		
 		app.setSettings(settings);
 		app.setShowSettings(false);
-		app.store.put("materials", new ArrayList<Material>());
+		app.materialsStore.put("materials", new ArrayList<Material>());
 
 		if(app.headless)
 		{
@@ -71,20 +81,17 @@ public class OrganismEvolution extends SimpleApplication
 		}
 		
 	}
-	
-	private ActionListener actionListener = new KeyInputActionListener(this);
 
 	@Override
 	public void simpleInitApp()
-	{
-		Logger.getLogger("com.jme3").setLevel(Level.OFF);
-		
-		mapKeys();
+	{		
 		initCamera();
-		initPhysics();	
+		initPhysics();
+		keyActionListener.mapKeys();
+		
+		GaManager.getInstance().run();
 		
 		/* Generate */
-		
 		for(int i=0; i<10; i++)
 		{
 			
@@ -95,15 +102,11 @@ public class OrganismEvolution extends SimpleApplication
 			organism.move(new Vector3f(0.0f, i*200.0f, 0.0f));
 			addFloor(organismNode);
 			
-			/*
 			Judge judge = new Judge(organism);
 			Thread judgeThread = new Thread(judge);
-			judgeThreads.add(judgeThread);
+			judgesList.add(judgeThread);
 			judgeThread.start();
-			*/
-
-		}
-		
+		}		
 		
 		/* Write to XML */
 		//Util.write(organism.getOrganismTree(), "test1.xml");
@@ -123,9 +126,7 @@ public class OrganismEvolution extends SimpleApplication
 		
 		System.out.println(organismNode);
 		organism = organismFactory.createFromTree(newTree, organismNode);
-		*/
-		
-		
+		*/		
 	}
 	
 	@Override
@@ -137,7 +138,9 @@ public class OrganismEvolution extends SimpleApplication
 	@Override
 	public void destroy() 
 	{
-		for(Thread t: judgeThreads)
+		OrganismRepository.getInstance().printResults();
+		
+		for(Thread t: judgesList)
 		{
 			t.interrupt();
 		}
@@ -170,47 +173,20 @@ public class OrganismEvolution extends SimpleApplication
 		bulletAppState.getPhysicsSpace().enableDebug(assetManager);
 	}
 	
-	private void mapKeys()
-	{
-		inputManager.addMapping("toggleShowWireframe", new KeyTrigger(KeyInput.KEY_T));
-		inputManager.addListener(actionListener, "toggleShowWireframe");
-		
-		inputManager.addMapping("camBackwards", new KeyTrigger(KeyInput.KEY_S));
-		inputManager.addListener(actionListener, "camBackwards");
-		
-		inputManager.addMapping("camForwards", new KeyTrigger(KeyInput.KEY_W));
-		inputManager.addListener(actionListener, "camForwards");
-		
-		inputManager.addMapping("camUp", new KeyTrigger(KeyInput.KEY_Q));
-		inputManager.addListener(actionListener, "camUp");
-		
-		inputManager.addMapping("camDown", new KeyTrigger(KeyInput.KEY_E));
-		inputManager.addListener(actionListener, "camDown");
-		
-		inputManager.addMapping("saveOrganismToXml", new KeyTrigger(KeyInput.KEY_X));
-		inputManager.addListener(actionListener, "saveOrganismToXml");
-		
-		inputManager.addMapping("togglePhysics", new KeyTrigger(KeyInput.KEY_P));
-		inputManager.addListener(actionListener, "togglePhysics");
-		
-		inputManager.addMapping("testMove", new KeyTrigger(KeyInput.KEY_L));
-		inputManager.addListener(actionListener, "testMove");
-		
-	}
-	
 	private void addFloor(Node node)
 	{
 		Vector3f min = ((BoundingBox)node.getWorldBound()).getMin(null);
-		Box f = new Box(Vector3f.ZERO, 500.0f, 2.0f, 500.f);
+		Box f = new Box(Vector3f.ZERO, 100000.0f, 2.0f, 100000.f);
 		floor = new Geometry("floor", f);
 		floor.setShadowMode(ShadowMode.Receive);
 		Material matf = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 		matf.setColor("Color", ColorRGBA.LightGray);
 		floor.setMaterial(matf);
-		floor.move(0, min.y-20.0f, 0);
+		floor.move(0, min.y-50.0f, 0);
 		RigidBodyControl fc = new RigidBodyControl(0.0f);
+		fc.setCollisionGroup(1);
 		floor.addControl(fc);
-		floor.getControl(RigidBodyControl.class).setFriction(10.0f);
+		floor.getControl(RigidBodyControl.class).setFriction(50.0f);
 		fc.setPhysicsLocation(floor.getWorldTranslation());
 		bulletAppState.getPhysicsSpace().add(floor);
 		floor.setShadowMode(ShadowMode.Receive);
@@ -225,12 +201,12 @@ public class OrganismEvolution extends SimpleApplication
 
 	public Map<String, List<Material>> getStore() 
 	{
-		return store;
+		return materialsStore;
 	}
 
 	public Camera getMainCam() 
 	{
 		return mainCam;
 	}
-	
+
 }

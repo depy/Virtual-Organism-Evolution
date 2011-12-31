@@ -1,17 +1,11 @@
 package com.matjazmuhic.util;
 
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.util.List;
 import java.util.Random;
 
 import javax.management.RuntimeErrorException;
 
+import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.bullet.control.RigidBodyControl;
@@ -24,11 +18,11 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.matjazmuhic.OrganismEvolution;
-import com.matjazmuhic.tree.OrganismTree;
+import com.matjazmuhic.persistence.PropertiesStore;
 
 public class Util 
 {
-	private static int timerTimeInterval = 250; // miliseconds
+	private static int timerTimeInterval = Integer.parseInt(PropertiesStore.getIstance().get("timerTimeInterval"));
 	
 	public static class JmeObject
 	{
@@ -55,8 +49,9 @@ public class Util
 	{
 		SimpleVector axis1 = new SimpleVector(r.nextFloat(), r.nextFloat(), r.nextFloat());
 		SimpleVector axis2 = new SimpleVector(r.nextFloat(), r.nextFloat(), r.nextFloat());
-		float lowerLimit = (r.nextFloat()*1.57f)-1.57f;
-		float upperLimit = r.nextFloat()*1.57f;	
+		float lowerLimit = (r.nextFloat()*1.57f)-1.5f;
+		float upperLimit = r.nextFloat()*1.5f+0.7f;	
+		
 		boolean collisions = false;
 		float motorTargetVelocity = r.nextFloat()*80f;
 		float motorMaxImpulse = getRandomFloatTenth()*4.0f;
@@ -95,14 +90,16 @@ public class Util
 	public static JmeObject createJmeNode(Dimensions d, OrganismEvolution app, String name)
 	{
 		Box b = new Box(d.x, d.y, d.z);
-		float mass = (d.x*d.y*d.z)/90;
+		float mass = (d.x*d.y*d.z)/80;
 		Geometry geometry = new Geometry(name, b);
 		geometry.setModelBound(new BoundingBox());
 		geometry.updateModelBound();
 		Material material = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
 		material.setColor("Color", ColorRGBA.randomColor());
 		geometry.setMaterial(material);
-		geometry.addControl(new RigidBodyControl());
+		RigidBodyControl rigidBodyControl = new RigidBodyControl();
+		rigidBodyControl.setCollisionGroup(0);
+		geometry.addControl(rigidBodyControl);
 		geometry.getControl(RigidBodyControl.class).setPhysicsLocation(geometry.getLocalTranslation());
 		app.getBulletAppState().getPhysicsSpace().add(geometry);
 		app.getStore().get("materials").add(material);

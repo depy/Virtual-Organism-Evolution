@@ -1,6 +1,8 @@
 package com.matjazmuhic.ga;
 
 import java.util.Random;
+
+import com.matjazmuhic.persistence.PropertiesStore;
 import com.matjazmuhic.tree.BasicNode;
 import com.matjazmuhic.tree.BlockNode;
 import com.matjazmuhic.tree.OrganismTree;
@@ -8,63 +10,63 @@ import com.matjazmuhic.util.Util;
 
 public class GeneticUtil 
 {
-	private static int randomModifier = 3;
+	private static int randomModifier = Integer.parseInt(PropertiesStore.getIstance().get("randomModifier"));
 	private static Random r = new Random();
 	
 	public static OrganismTree crossover(OrganismTree tree1, OrganismTree tree2)
 	{
-		BasicNode root1 = (BasicNode)tree1.getRoot();
-		BlockNode node1 = getNextRandomNode(root1);
+		BlockNode node = getRandomNode(tree1);		
+		BlockNode node2 = getRandomSubTree(tree2);
+		node2.setParent(node.getParent());
+		node2.setRoot(node.getRoot());
+		int node1pos = ((BasicNode)node.getParent()).getChildPositionByGeometryId(node.getGeometryId());
+		node.getParent().getChildren()[node1pos] = node2;
 		
+		return tree1;
+	}
+	
+	public static void mutate(OrganismTree tree)
+	{
+		BlockNode node = getRandomNode(tree);
+		
+		while(node.hasChildren())
+		{
+			node = getRandomNode(tree);
+		}
+		node.remove();
+		
+	}
+	
+	private static BlockNode getRandomSubTree(OrganismTree organismTree)
+	{
+		BlockNode node = getRandomNode(organismTree);
+		
+		node.setRoot(null);
+		node.setParent(null);
+		
+		return node;
+		
+	}
+	
+	private static BlockNode getRandomNode(OrganismTree tree)
+	{
+		BlockNode node = getNextRandomNode((BasicNode)tree.getRoot());
 		
 		int rnd = r.nextInt(randomModifier);
 		while(rnd!=0)
 		{
-			if(node1.hasChildren())
+			if(node.hasChildren())
 			{
-				node1 = getNextRandomNode(node1);
+				node = getNextRandomNode(node);
 				rnd = r.nextInt(randomModifier);
 			}
 			else
 			{
 				break;
 			}
-			System.out.println("Rnd = "+rnd+" hasChildren = "+node1.hasChildren());
 		}
 		
-		int node1pos = ((BasicNode)node1.getParent()).getChildPositionByGeometryId(node1.getGeometryId());
-		OrganismTree subTree = getRandomSubTree(tree2);
-		BlockNode newRoot = new BlockNode(subTree.getRoot().getDimensions(), Util.getRandomJointProps());
-		subTree.setRoot(newRoot);
-		node1.getParent().getChildren()[node1pos] = subTree.getRoot();
-		
-		return tree1;
-	}
-	
-	private static OrganismTree getRandomSubTree(OrganismTree organismTree)
-	{
-		BasicNode root = (BasicNode)organismTree.getRoot();
-		BlockNode node = getNextRandomNode(root);
-		
-		while(r.nextInt(randomModifier)!=0)
-		{
-			if(node.hasChildren())
-			{
-				node = getNextRandomNode(node);
-			}
-			else
-			{
-				break;
-			}
-		}
-		
-		OrganismTree newTree = new OrganismTree();
-		node.setRoot(null);
-		node.setParent(null);
-		newTree.setRoot(node);
-		
-		return newTree;
-		
+		return node;
 	}
 	
 	private static BlockNode getNextRandomNode(BasicNode node)
@@ -78,4 +80,5 @@ public class GeneticUtil
 			return (BlockNode)node;
 		}
 	}
+	
 }

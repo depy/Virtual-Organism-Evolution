@@ -12,6 +12,8 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.matjazmuhic.persistence.PropertiesStore;
+import com.matjazmuhic.physics.MotorObserver;
 import com.matjazmuhic.tree.BasicNode;
 import com.matjazmuhic.tree.BlockNode;
 import com.matjazmuhic.tree.IBlockNode;
@@ -19,24 +21,22 @@ import com.matjazmuhic.tree.OccupiedNode;
 import com.matjazmuhic.tree.OrganismTree;
 import com.matjazmuhic.util.Dimensions;
 import com.matjazmuhic.util.JointProperties;
-import com.matjazmuhic.util.MotorObserver;
 import com.matjazmuhic.util.OrganismTimer;
 import com.matjazmuhic.util.Position;
 import com.matjazmuhic.util.Util;
 
 public class OrganismFactory 
 {
-	int maxDepth = 3;
-	int maxOrganismNodes = 10;
-	int minOrganismNodes = 4;
+	
+	int maxDepth = Integer.parseInt(PropertiesStore.getIstance().get("maxDepth"));
+	int maxOrganismNodes = Integer.parseInt(PropertiesStore.getIstance().get("maxOrganismNodes"));
+	int minOrganismNodes = Integer.parseInt(PropertiesStore.getIstance().get("minOrganismNodes"));
 	int maxNodes;
-	int chanceToCreateNode = 5;
+	int chanceToCreateNode = Integer.parseInt(PropertiesStore.getIstance().get("chanceToCreateNode"));
 	
-	float jointOffset = 0.0f;
-	int jointTimePeriod = 5000;
-	int jointTimeInterval = 250;
+	float jointOffset = Float.parseFloat(PropertiesStore.getIstance().get("jointOffset"));
 	
-	boolean collisionBetweenLinkedBodys = false;
+	boolean collisionBetweenLinkedBodys = Boolean.parseBoolean(PropertiesStore.getIstance().get("collisionBetweenLinkedBodys"));
 	Random r;
 	int numNodes = 1;
 	
@@ -217,15 +217,6 @@ public class OrganismFactory
 		Vector3f desiredTranslation = parentTranslation.add(translationVector);
 		geometry.setLocalTranslation(desiredTranslation);
 		geometry.getControl(RigidBodyControl.class).setPhysicsLocation(geometry.getLocalTranslation());
-		
-		
-		/*
-		Dimensions parentDim = node.getDimensions();
-		Dimensions newNodeDim = newNode.getDimensions();
-		Vector3f translationVector = new Vector3f(p.x*(parentDim.x+newNodeDim.x), p.y*(parentDim.y+newNodeDim.y), p.z*(parentDim.z+newNodeDim.z));
-		geometry.move(translationVector);
-		geometry.getControl(RigidBodyControl.class).setPhysicsLocation(geometry.getWorldTranslation());
-		*/
 	}
 	
 	private HingeJoint makeJoint(Geometry geometry, Spatial parentSpatial, IBlockNode parentNode, BlockNode newNode, JointProperties jp, Position p, Position pi)
@@ -233,19 +224,7 @@ public class OrganismFactory
 		Dimensions newNodeDim = newNode.getDimensions();
 		Dimensions parentDim = parentNode.getDimensions();
 		Vector3f jPivotA = new Vector3f((pi.x*(newNodeDim.x+jointOffset)), (pi.y*(newNodeDim.y+jointOffset)), (pi.z*(newNodeDim.z+jointOffset)));
-		Vector3f jPivotB = new Vector3f((p.x*(parentDim.x+jointOffset)), (p.y*(parentDim.y+jointOffset)), (p.z*(parentDim.z+jointOffset)));
-		
-		/*
-		HingeJoint joint = new HingeJoint(
-				geometry.getControl(RigidBodyControl.class),
- 				parentSpatial.getControl(RigidBodyControl.class),
- 				jPivotA,
- 				jPivotB,
- 				Util.getRandomVector().normalize(),
- 				Util.getRandomVector().normalize()
- 				);
-		*/
-		
+		Vector3f jPivotB = new Vector3f((p.x*(parentDim.x+jointOffset)), (p.y*(parentDim.y+jointOffset)), (p.z*(parentDim.z+jointOffset)));	
 		
 		HingeJoint joint = new HingeJoint(
 				geometry.getControl(RigidBodyControl.class),

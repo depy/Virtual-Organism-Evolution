@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import com.jme3.math.Vector3f;
 import com.matjazmuhic.Organism;
-import com.matjazmuhic.OrganismEvolution;
 import com.matjazmuhic.persistence.OrganismRepository;
 
 public class Judge implements Runnable
@@ -28,14 +27,14 @@ public class Judge implements Runnable
 			Thread.sleep(15000);
 			endPosition = (organism.getOrganismJme().getNode().getWorldBound()).getCenter().clone();
 			float distance = endPosition.distance(startPosition);
-			System.out.println("Distance: "+distance);
 			organism.getOrganismTree().setScore(distance);
 			String name = UUID.randomUUID().toString();
-			OrganismRepository.writeToXml(organism.getOrganismTree(), name);
+			OrganismRepository.getInstance().save(organism.getOrganismTree(), 1);
+			System.out.println(name+" scored: "+distance);
 		}
 		catch (InterruptedException e) 
 		{
-			e.printStackTrace();
+			//Expected
 		}
 	}
 	

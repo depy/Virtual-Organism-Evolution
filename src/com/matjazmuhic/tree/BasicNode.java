@@ -169,7 +169,5 @@ public class BasicNode implements IBlockNode, Serializable
 	{
 		this.geometryId = geometryId;
 	}
-
-	
 	
 }

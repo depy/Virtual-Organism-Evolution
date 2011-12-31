@@ -7,10 +7,12 @@ public class OrganismTree implements Serializable, Comparable<OrganismTree>
 	private static final long serialVersionUID = 8474134536491791809L;
 	
 	IBlockNode root;
+	int numNodes;
 	float score;
 	
 	public OrganismTree()
 	{
+		numNodes = 0;
 	}
 	
 	public IBlockNode getRoot()
@@ -60,7 +62,7 @@ public class OrganismTree implements Serializable, Comparable<OrganismTree>
 	@Override
 	public int compareTo(OrganismTree oTree)
 	{
-		return (int)(this.score - oTree.score);
+		return (int)(oTree.score - this.score);
 	}
 		
 }
