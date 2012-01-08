@@ -2,6 +2,7 @@ package com.matjazmuhic.util;
 
 import java.util.Observable;
 import com.matjazmuhic.OrganismEvolution;
+import com.matjazmuhic.persistence.PropertiesStore;
 
 public class OrganismTimer extends Observable implements Runnable
 {
@@ -21,7 +22,7 @@ public class OrganismTimer extends Observable implements Runnable
 	{
 		try
 		{
-			Thread.sleep(6000);
+			Thread.sleep(Integer.valueOf(PropertiesStore.getIstance().get("warmupTime")));
 			
 			while(true)
 			{
@@ -38,7 +39,7 @@ public class OrganismTimer extends Observable implements Runnable
 		}
 		catch(InterruptedException e)
 		{
-			//System.out.println("Sleep interrupted...");
+
 		}
 	}
 }

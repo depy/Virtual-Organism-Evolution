@@ -4,17 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import com.bulletphysics.collision.broadphase.CollisionFilterGroups;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.input.KeyInput;
-import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.KeyTrigger;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -26,7 +19,6 @@ import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
 import com.jme3.system.JmeContext;
 import com.matjazmuhic.ga.GaManager;
-import com.matjazmuhic.ga.GeneticUtil;
 import com.matjazmuhic.persistence.OrganismRepository;
 import com.matjazmuhic.persistence.PropertiesStore;
 import com.matjazmuhic.tree.OrganismTree;
@@ -36,18 +28,19 @@ import com.matjazmuhic.util.KeyInputActionListener;
 public class OrganismEvolution extends SimpleApplication
 {
 	boolean headless;
+	boolean testsStarted;
 	BulletAppState bulletAppState;
 	Map<String, List<Material>> materialsStore = new HashMap<String, List<Material>>();
 	List<Thread> judgesList;
 	List<Organism> organismList;
 	KeyInputActionListener keyActionListener;
-	
+	int numGenerations;
+	int populationSize;
 	Geometry floor = null;
 	Camera mainCam;
 	Vector3f startPosition = null;
-	
-	public Organism organism;
-	public Organism organism2;
+	GaManager gaManager;
+	int generationNum = 0;
 	
 	public OrganismEvolution()
 	{
@@ -57,12 +50,11 @@ public class OrganismEvolution extends SimpleApplication
 	public static void main(String[] args) 
 	{
 		OrganismEvolution app = new OrganismEvolution();
-		
-		System.out.println("headless = "+PropertiesStore.getIstance().get("headless"));
 		app.headless = Boolean.parseBoolean(PropertiesStore.getIstance().get("headless"));
-		
 		app.judgesList = new ArrayList<Thread>();
 		app.organismList = new ArrayList<Organism>();
+		app.numGenerations = Integer.valueOf(PropertiesStore.getIstance().get("numGenerations"));
+		app.populationSize = Integer.valueOf(PropertiesStore.getIstance().get("populationSize"));
 		
 		AppSettings settings = new AppSettings(true);
 		settings.setResolution(1024,768);
@@ -89,24 +81,11 @@ public class OrganismEvolution extends SimpleApplication
 		initPhysics();
 		keyActionListener.mapKeys();
 		
-		GaManager.getInstance().run();
+		makePopulation(populationSize);
 		
+		gaManager = new GaManager(this);
+		 
 		/* Generate */
-		for(int i=0; i<10; i++)
-		{
-			
-			Node organismNode = new Node();
-			rootNode.attachChild(organismNode);
-			Organism organism = new OrganismFactory(this).createRandomOrganism(organismNode);	
-			organismList.add(organism);
-			organism.move(new Vector3f(0.0f, i*200.0f, 0.0f));
-			addFloor(organismNode);
-			
-			Judge judge = new Judge(organism);
-			Thread judgeThread = new Thread(judge);
-			judgesList.add(judgeThread);
-			judgeThread.start();
-		}		
 		
 		/* Write to XML */
 		//Util.write(organism.getOrganismTree(), "test1.xml");
@@ -133,6 +112,25 @@ public class OrganismEvolution extends SimpleApplication
 	public void update() 
 	{
 		super.update();
+		boolean finished = false;
+		
+		if(testsStarted)
+		{
+			for(Thread t: judgesList)
+			{
+				finished = !t.isAlive();
+			}
+			if(finished)
+			{
+				testsStarted=false;
+				System.out.println("Genetic ALG...");
+				List<OrganismTree> newGen = gaManager.step(generationNum);
+				organismList.clear();
+				rootNode.detachAllChildren();
+				makePopulation(newGen);
+			}
+		}
+		
 	};
 	
 	@Override
@@ -207,6 +205,57 @@ public class OrganismEvolution extends SimpleApplication
 	public Camera getMainCam() 
 	{
 		return mainCam;
+	}
+	
+	public void makePopulation(int size)
+	{
+		generationNum++;
+		
+		for(int i=0; i<size; i++)
+		{
+			
+			Node organismNode = new Node();
+			rootNode.attachChild(organismNode);
+			Organism organism;
+			organism = OrganismFactory.getInstance(this).createRandomOrganism(organismNode);
+			organism.move(new Vector3f(0.0f, i*250.0f, 0.0f));
+			organismList.add(organism);
+			addFloor(organismNode);
+			
+			Judge judge = new Judge(organism, generationNum);
+			Thread judgeThread = new Thread(judge);
+			judgesList.add(judgeThread);
+			judgeThread.start();
+		}	
+		testsStarted = true;
+	}
+	
+	public void makePopulation(List<OrganismTree> oTrees)
+	{
+		generationNum++;
+		
+		for(int i=0; i<oTrees.size(); i++)
+		{
+			
+			Node organismNode = new Node();
+			rootNode.attachChild(organismNode);
+			Organism organism;
+			organism = OrganismFactory.getInstance(this).createFromTree(oTrees.get(i), organismNode);
+			organism.move(new Vector3f(0.0f, i*250.0f, 0.0f));
+			organismList.add(organism);
+			addFloor(organismNode);
+			
+			Judge judge = new Judge(organism, generationNum);
+			Thread judgeThread = new Thread(judge);
+			judgesList.add(judgeThread);
+			judgeThread.start();
+		}	
+		testsStarted = true;
+	}
+	
+	public List<Organism> getOrganismList() 
+	{
+		return organismList;
 	}
 
 }

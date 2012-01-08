@@ -1,10 +1,14 @@
 package com.matjazmuhic.ga;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
+import com.matjazmuhic.Organism;
 import com.matjazmuhic.persistence.PropertiesStore;
 import com.matjazmuhic.tree.BasicNode;
 import com.matjazmuhic.tree.BlockNode;
+import com.matjazmuhic.tree.IBlockNode;
 import com.matjazmuhic.tree.OrganismTree;
 import com.matjazmuhic.util.Util;
 
@@ -15,17 +19,20 @@ public class GeneticUtil
 	
 	public static OrganismTree crossover(OrganismTree tree1, OrganismTree tree2)
 	{
-		BlockNode node = getRandomNode(tree1);		
+		BlockNode node = getRandomNode(tree1);	
+		int node1pos = node.getPosition();
+		IBlockNode parent = node.getParent();
 		BlockNode node2 = getRandomSubTree(tree2);
-		node2.setParent(node.getParent());
+		node2.setParent(parent);
 		node2.setRoot(node.getRoot());
-		int node1pos = ((BasicNode)node.getParent()).getChildPositionByGeometryId(node.getGeometryId());
-		node.getParent().getChildren()[node1pos] = node2;
+		System.out.println("parent.getChildren()[node1pos] => "+parent.getChildren()[node1pos]);
+		System.out.println("node2 => "+node2);
+		parent.getChildren()[node1pos] = node2;
 		
 		return tree1;
 	}
 	
-	public static void mutate(OrganismTree tree)
+	public static OrganismTree mutate(OrganismTree tree)
 	{
 		BlockNode node = getRandomNode(tree);
 		
@@ -33,8 +40,12 @@ public class GeneticUtil
 		{
 			node = getRandomNode(tree);
 		}
-		node.remove();
 		
+		//Mutate...
+		//node.remove();
+		node.setJointProperties(Util.getRandomJointProps());
+		
+		return tree;
 	}
 	
 	private static BlockNode getRandomSubTree(OrganismTree organismTree)
@@ -79,6 +90,37 @@ public class GeneticUtil
 		{
 			return (BlockNode)node;
 		}
+	}
+	
+	//Roulette selection
+	public static OrganismTree selection(List<OrganismTree> population) 
+	{
+		Random r = new Random();
+		
+		int sumH = 0;
+		
+		for(int i=0; i<population.size(); i++)
+		{
+			sumH += population.get(i).getScore();
+		}
+		
+		int i = 0;
+		int random = r.nextInt(sumH);
+		int partialSum = 0;
+		
+		while(random>partialSum)
+		{
+			partialSum+=population.get(i).getScore();
+			
+			if(i==population.size()-1)
+			{
+				break;
+			}
+			
+			i++;
+		}
+		
+		return population.get(i);
 	}
 	
 }

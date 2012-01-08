@@ -27,6 +27,23 @@ import com.matjazmuhic.util.Util;
 
 public class OrganismFactory 
 {
+	private static OrganismFactory instance = null;
+	private static OrganismEvolution app = null;
+	
+	private OrganismFactory()
+	{
+		this.init();
+	}
+	
+	public static OrganismFactory getInstance(OrganismEvolution organismEvolutionApp)
+	{
+		if(instance==null)
+		{
+			instance = new OrganismFactory();
+		}
+		app = organismEvolutionApp;
+		return instance;
+	}
 	
 	int maxDepth = Integer.parseInt(PropertiesStore.getIstance().get("maxDepth"));
 	int maxOrganismNodes = Integer.parseInt(PropertiesStore.getIstance().get("maxOrganismNodes"));
@@ -39,14 +56,6 @@ public class OrganismFactory
 	boolean collisionBetweenLinkedBodys = Boolean.parseBoolean(PropertiesStore.getIstance().get("collisionBetweenLinkedBodys"));
 	Random r;
 	int numNodes = 1;
-	
-	private OrganismEvolution app = null;
-	
-	public OrganismFactory(OrganismEvolution app)
-	{
-		this.app = app;
-		this.init();
-	}
 	
 	public void init()
 	{

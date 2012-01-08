@@ -53,6 +53,9 @@ public class KeyInputActionListener implements ActionListener
 		inputManager.addMapping("togglePhysics", new KeyTrigger(KeyInput.KEY_P));
 		inputManager.addListener(this, "togglePhysics");
 		
+		inputManager.addMapping("test", new KeyTrigger(KeyInput.KEY_H));
+		inputManager.addListener(this, "test");
+		
 	}
 	
 	@Override

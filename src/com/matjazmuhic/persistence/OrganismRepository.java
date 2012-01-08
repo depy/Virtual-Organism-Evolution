@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+
 import com.matjazmuhic.tree.OrganismTree;
 
 public class OrganismRepository 
@@ -82,6 +84,11 @@ public class OrganismRepository
     	organisms.add(oTree);
     }
     
+    public List<OrganismTree> getGeneration(int generationNum)
+    {
+    	return storage.get(generationNum);
+    }
+    
     public void printResults()
     {
     	for(Map.Entry<Integer, List<OrganismTree>> entry: storage.entrySet())
@@ -89,7 +96,7 @@ public class OrganismRepository
     		System.out.println("Generation "+entry.getKey());
     		List<OrganismTree> organismList = entry.getValue();
     		Collections.sort(organismList);
-    		
+    		OrganismRepository.getInstance().writeToXml(organismList.get(0), UUID.randomUUID().toString());
     		for(OrganismTree oTree: organismList)
     		{
     			System.out.println("Subject "+oTree.toString()+" scored "+oTree.getScore());

@@ -45,6 +45,7 @@ public class BasicNode implements IBlockNode, Serializable
 			else
 			{
 				node.setRoot(this.root);
+				node.setPosition(position);
 			}
 			int inversePosition = Util.getInversePosition(position);
 			node.getChildren()[inversePosition] = new OccupiedNode();
@@ -60,6 +61,7 @@ public class BasicNode implements IBlockNode, Serializable
 			this.children[position]=null;
 			this.numChildren--;
 			this.getRoot().setNumAllNodes(this.getRoot().getNumAllNodes()-1);
+			this.children[Util.getInversePosition(position)]=null;
 		}
 	}
 	
@@ -102,10 +104,10 @@ public class BasicNode implements IBlockNode, Serializable
 	{
 		for(int i=0; i<8; i++)
 		{
-			if(this.children[i]!=null)
+			if(this.children[i]!=null && !(this.children[i] instanceof OccupiedNode))
 			{
 				BlockNode child = (BlockNode)this.children[i];
-				if(child.getGeometryId()==geometryId)
+				if(child.getGeometryId().equals(geometryId))
 				{
 					return i;
 				}
