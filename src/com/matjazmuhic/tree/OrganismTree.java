@@ -48,6 +48,33 @@ public class OrganismTree implements Serializable, Comparable<OrganismTree>
 				
 		}
 	}
+	
+	public void destroy()
+	{
+		destroyRecursively(this.root);
+	}
+	
+	private void destroyRecursively(IBlockNode node)
+	{
+		if(node.hasChildren())
+		{
+			for(int i=0; i<8; i++)
+			{
+				if(node.getChildren()[i] instanceof OccupiedNode || node.getChildren()[i]==null)
+				{
+					continue;
+				}
+				else
+				{
+					
+					destroyRecursively((IBlockNode) node.getChildren()[i]);
+				}
+			}
+				
+		}
+		
+		node = null;
+	}
 
 	public float getScore()
 	{

@@ -1,20 +1,12 @@
 package com.matjazmuhic.util;
 
 import java.util.Observable;
-import com.matjazmuhic.OrganismEvolution;
 import com.matjazmuhic.persistence.PropertiesStore;
 
 public class OrganismTimer extends Observable implements Runnable
-{
-	int timerCounter = 0;
-	int interval; 
-	int period;
-	OrganismEvolution app;
-	
-	public OrganismTimer(int periodInMs, int timeInterval)
+{	
+	public OrganismTimer()
 	{
-		this.period = periodInMs;
-		this.interval = timeInterval;
 	}
 	
 	@Override
@@ -27,14 +19,8 @@ public class OrganismTimer extends Observable implements Runnable
 			while(true)
 			{
 				setChanged();
-				notifyObservers(timerCounter);
-				Thread.sleep(interval);
-				timerCounter++;
-				
-				if(interval*timerCounter>=period)
-				{
-					timerCounter = 0;
-				}
+				notifyObservers();
+				Thread.sleep(Integer.parseInt(PropertiesStore.getIstance().get("timerTimeInterval")));
 			}
 		}
 		catch(InterruptedException e)

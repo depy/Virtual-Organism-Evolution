@@ -21,7 +21,6 @@ import com.matjazmuhic.tree.OccupiedNode;
 import com.matjazmuhic.tree.OrganismTree;
 import com.matjazmuhic.util.Dimensions;
 import com.matjazmuhic.util.JointProperties;
-import com.matjazmuhic.util.OrganismTimer;
 import com.matjazmuhic.util.Position;
 import com.matjazmuhic.util.Util;
 
@@ -76,11 +75,7 @@ public class OrganismFactory
 			HingeJoint hj = entry.getKey();
 			JointProperties jp = entry.getValue();
 			MotorObserver mo = new MotorObserver(hj, jp);
-			OrganismTimer organismTimer = new OrganismTimer(jp.getTimePeriod(), jp.getTimeInterval());
-			organismTimer.addObserver(mo);
-			Thread t = new Thread(organismTimer);
-			t.start();
-			oJme.timerThreads.add(t);
+			oJme.getOrganismTimer().addObserver(mo);
 		}	
 		return organism;
 	}
@@ -173,13 +168,9 @@ public class OrganismFactory
 			HingeJoint hj = entry.getKey();
 			JointProperties jp = entry.getValue();
 			MotorObserver mo = new MotorObserver(hj, jp);
-			OrganismTimer organismTimer = new OrganismTimer(jp.getTimePeriod(), jp.getTimeInterval());
-			organismTimer.addObserver(mo);
-			Thread t = new Thread(organismTimer);
-			t.start();
-			oJme.timerThreads.add(t);
-		}	
-		
+
+			oJme.getOrganismTimer().addObserver(mo);
+		}
 		return organism;
 	}
 	

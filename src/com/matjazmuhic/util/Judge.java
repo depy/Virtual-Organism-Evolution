@@ -1,15 +1,12 @@
 package com.matjazmuhic.util;
 
-import java.util.UUID;
-
-import javax.management.RuntimeErrorException;
-
+import java.util.concurrent.Callable;
 import com.jme3.math.Vector3f;
 import com.matjazmuhic.Organism;
 import com.matjazmuhic.persistence.OrganismRepository;
 import com.matjazmuhic.persistence.PropertiesStore;
 
-public class Judge implements Runnable
+public class Judge implements Callable<Float>
 {
 	Vector3f startPosition;
 	Vector3f endPosition;
@@ -21,30 +18,27 @@ public class Judge implements Runnable
 		this.organism = organism;
 		this.generationNum = generationNum;
 	}
-	
+
 	@Override
-	public void run() 
+	public Float call() throws Exception 
 	{
-		try 
+		float distance = 0.0f;
+
+		Thread.sleep(Integer.valueOf(PropertiesStore.getIstance().get("warmupTime")));
+		startPosition = (organism.getOrganismJme().getNode().getWorldBound()).getCenter().clone();
+		Thread.sleep(Integer.valueOf(PropertiesStore.getIstance().get("performanceTime")));
+		endPosition = (organism.getOrganismJme().getNode().getWorldBound()).getCenter().clone();
+		distance = endPosition.distance(startPosition);
+		
+		if(distance==0.0f)
 		{
-			Thread.sleep(Integer.valueOf(PropertiesStore.getIstance().get("warmupTime")));
-			startPosition = (organism.getOrganismJme().getNode().getWorldBound()).getCenter().clone();
-			Thread.sleep(Integer.valueOf(PropertiesStore.getIstance().get("performanceTime")));
-			endPosition = (organism.getOrganismJme().getNode().getWorldBound()).getCenter().clone();
-			float distance = endPosition.distance(startPosition);
-			if(distance==0.0f)
-			{
-				throw new Error(startPosition.toString()+" "+endPosition.toString());
-			}
-			organism.getOrganismTree().setScore(distance);
-			String name = UUID.randomUUID().toString();
-			OrganismRepository.getInstance().save(organism.getOrganismTree(), generationNum);
-			System.out.println(name+" scored: "+distance);
+			throw new Error(startPosition.toString()+" "+endPosition.toString());
 		}
-		catch (InterruptedException e) 
-		{
-			//Expected
-		}
+		
+		organism.getOrganismTree().setScore(distance);
+		OrganismRepository.getInstance().save(organism.getOrganismTree(), generationNum);
+
+		return new Float(distance);
 	}
 	
 }

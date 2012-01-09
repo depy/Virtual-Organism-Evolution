@@ -34,10 +34,7 @@ public class Organism
 	
 	public void notifyDestroy()
 	{
-		for(Thread t: organismJme.timerThreads)
-		{
-			t.interrupt();
-		}
+		organismTree.destroy();
 	}
 	
 	public void move(Vector3f location)
