@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.ajexperience.utils.DeepCopyException;
+import com.ajexperience.utils.DeepCopyUtil;
 import com.matjazmuhic.tree.OrganismTree;
 
 public class OrganismRepository 
@@ -21,9 +23,17 @@ public class OrganismRepository
 	static Map<Integer, List<OrganismTree>> storage = new HashMap<Integer, List<OrganismTree>>();
 	
 	private static OrganismRepository instance = null;
-	
+	private DeepCopyUtil deepCopyUtil;
 	protected OrganismRepository()
 	{
+		try
+		{
+			deepCopyUtil = new DeepCopyUtil();
+		} 
+		catch (DeepCopyException e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	public static OrganismRepository getInstance()
@@ -81,7 +91,14 @@ public class OrganismRepository
     		organisms = storage.get(generation);
     	}
     	
-    	organisms.add(oTree);
+    	try
+    	{
+			organisms.add((OrganismTree)deepCopyUtil.deepCopy(oTree));
+		} 
+    	catch (DeepCopyException e)
+    	{
+			e.printStackTrace();
+		}
     }
     
     public List<OrganismTree> getGeneration(int generationNum)
@@ -96,7 +113,6 @@ public class OrganismRepository
     		System.out.println("Generation "+entry.getKey());
     		List<OrganismTree> organismList = entry.getValue();
     		Collections.sort(organismList);
-    		OrganismRepository.getInstance().writeToXml(organismList.get(0), UUID.randomUUID().toString());
     		for(OrganismTree oTree: organismList)
     		{
     			System.out.println("Subject "+oTree.toString()+" scored "+oTree.getScore());

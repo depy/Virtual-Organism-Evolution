@@ -22,5 +22,6 @@
 	<classpathentry kind="lib" path="lib/stack-alloc.jar"/>
 	<classpathentry kind="lib" path="lib/vecmath.jar"/>
 	<classpathentry kind="lib" path="lib/xmlpull-xpp3-1.1.4c.jar"/>
+	<classpathentry kind="lib" path="lib/DeepCopyUtil.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -216,7 +216,7 @@ public class OrganismFactory
 		Vector3f parentTranslation = parentSpatial.getLocalTranslation();
 		Vector3f desiredTranslation = parentTranslation.add(translationVector);
 		geometry.setLocalTranslation(desiredTranslation);
-		geometry.getControl(RigidBodyControl.class).setPhysicsLocation(geometry.getLocalTranslation());
+		//geometry.getControl(RigidBodyControl.class).setPhysicsLocation(geometry.getLocalTranslation());
 	}
 	
 	private HingeJoint makeJoint(Geometry geometry, Spatial parentSpatial, IBlockNode parentNode, BlockNode newNode, JointProperties jp, Position p, Position pi)

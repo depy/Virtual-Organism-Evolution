@@ -17,7 +17,7 @@ public class GeneticUtil
 	private static int randomModifier = Integer.parseInt(PropertiesStore.getIstance().get("randomModifier"));
 	private static Random r = new Random();
 	
-	public static OrganismTree crossover(OrganismTree tree1, OrganismTree tree2)
+	public static synchronized OrganismTree crossover(OrganismTree tree1, OrganismTree tree2)
 	{
 		BlockNode node = getRandomNode(tree1);	
 		int node1pos = node.getPosition();
@@ -32,7 +32,7 @@ public class GeneticUtil
 		return tree1;
 	}
 	
-	public static OrganismTree mutate(OrganismTree tree)
+	public static synchronized OrganismTree mutate(OrganismTree tree)
 	{
 		BlockNode node = getRandomNode(tree);
 		
@@ -48,7 +48,7 @@ public class GeneticUtil
 		return tree;
 	}
 	
-	private static BlockNode getRandomSubTree(OrganismTree organismTree)
+	private static synchronized BlockNode getRandomSubTree(OrganismTree organismTree)
 	{
 		BlockNode node = getRandomNode(organismTree);
 		
@@ -59,7 +59,7 @@ public class GeneticUtil
 		
 	}
 	
-	private static BlockNode getRandomNode(OrganismTree tree)
+	private static synchronized BlockNode getRandomNode(OrganismTree tree)
 	{
 		BlockNode node = getNextRandomNode((BasicNode)tree.getRoot());
 		
@@ -80,7 +80,7 @@ public class GeneticUtil
 		return node;
 	}
 	
-	private static BlockNode getNextRandomNode(BasicNode node)
+	private static synchronized BlockNode getNextRandomNode(BasicNode node)
 	{
 		if(node.hasChildren())
 		{
@@ -93,7 +93,7 @@ public class GeneticUtil
 	}
 	
 	//Roulette selection
-	public static OrganismTree selection(List<OrganismTree> population) 
+	public static synchronized OrganismTree selection(List<OrganismTree> population) 
 	{
 		Random r = new Random();
 		

@@ -87,7 +87,7 @@ public class Util
 		}
 	}
 	
-	public static JmeObject createJmeNode(Dimensions d, OrganismEvolution app, String name)
+	public static synchronized JmeObject createJmeNode(Dimensions d, OrganismEvolution app, String name)
 	{
 		Box b = new Box(d.x, d.y, d.z);
 		float mass = (d.x*d.y*d.z)/80;
@@ -103,6 +103,7 @@ public class Util
 		geometry.getControl(RigidBodyControl.class).setPhysicsLocation(geometry.getLocalTranslation());
 		app.getBulletAppState().getPhysicsSpace().add(geometry);
 		app.getStore().get("materials").add(material);
+
 		return new JmeObject(material, geometry);
 	}
 	
@@ -117,7 +118,7 @@ public class Util
 		return new Vector3f(r.nextFloat(), r.nextFloat(), r.nextFloat());
 	}
 	
-	public static boolean collidesWithOtherNodes(Geometry geometry, Node sceneNode, String excludeName)
+	public static synchronized boolean collidesWithOtherNodes(Geometry geometry, Node sceneNode, String excludeName)
 	{
 		List<Spatial> spatials = sceneNode.getChildren();
 		
