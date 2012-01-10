@@ -68,9 +68,7 @@ public class OrganismEvolution extends SimpleApplication
 		app.organismList = new ArrayList<Organism>();
 		app.numGenerations = Integer.valueOf(PropertiesStore.getIstance().get("numGenerations"));
 		app.populationSize = Integer.valueOf(PropertiesStore.getIstance().get("populationSize"));
-		
-		//app.organismExecutor = Executors.newCachedThreadPool();
-		//app.judgesExecutor = Executors.newCachedThreadPool();
+	
 		app.organismExecutor = Executors.newFixedThreadPool(app.populationSize);
 		app.judgesExecutor = Executors.newFixedThreadPool(app.populationSize);
 		
