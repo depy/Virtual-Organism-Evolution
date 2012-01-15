@@ -10,11 +10,13 @@ public class Organism
 {
 	private OrganismTree organismTree;
 	private OrganismJme organismJme;
+	private String name;
 	
-	public Organism(OrganismTree organismTree, OrganismJme organismJme) 
+	public Organism(OrganismTree organismTree, OrganismJme organismJme, String name) 
 	{
 		this.organismTree = organismTree;
 		this.organismJme = organismJme;
+		this.name = name;
 	}
 
 	public OrganismTree getOrganismTree()
@@ -32,6 +34,16 @@ public class Organism
 		this.organismTree = organismTree;
 	}
 	
+	public String getName() 
+	{
+		return name;
+	}
+
+	public void setName(String name) 
+	{
+		this.name = name;
+	}
+
 	public void notifyDestroy()
 	{
 		organismTree.destroy();

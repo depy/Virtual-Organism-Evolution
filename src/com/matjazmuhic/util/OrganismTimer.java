@@ -5,6 +5,8 @@ import com.matjazmuhic.persistence.PropertiesStore;
 
 public class OrganismTimer extends Observable implements Runnable
 {	
+	private boolean finished = false;
+	
 	public OrganismTimer()
 	{
 	}
@@ -16,7 +18,7 @@ public class OrganismTimer extends Observable implements Runnable
 		{
 			Thread.sleep(Integer.valueOf(PropertiesStore.getIstance().get("warmupTime")));
 			
-			while(true)
+			while(!finished)
 			{
 				setChanged();
 				notifyObservers();
@@ -27,5 +29,10 @@ public class OrganismTimer extends Observable implements Runnable
 		{
 
 		}
+	}
+	
+	public void setFinished(boolean finished)
+	{
+		this.finished = finished;
 	}
 }

@@ -1,8 +1,5 @@
 package com.matjazmuhic.util;
 
-import java.util.List;
-import java.util.UUID;
-
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -73,9 +70,7 @@ public class KeyInputActionListener implements ActionListener
 				showWireFrame = true;
 			}
     		
-    		List<Material> materials = app.getStore().get("materials");
-    		
-    		for(Material m: materials)
+    		for(Material m: app.getMaterialsStore())
     		{
     			m.getAdditionalRenderState().setWireframe(showWireFrame);
     		}

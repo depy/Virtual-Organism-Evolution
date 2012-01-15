@@ -1,7 +1,7 @@
 package com.matjazmuhic.tree;
 
+import com.matjazmuhic.physics.JointProperties;
 import com.matjazmuhic.util.Dimensions;
-import com.matjazmuhic.util.JointProperties;
 
 public class BlockNode extends BasicNode
 {
@@ -15,7 +15,7 @@ public class BlockNode extends BasicNode
 	{
 	}
 	
-	public BlockNode(Dimensions dimensions, JointProperties jointProperties)
+	public BlockNode(Dimensions dimensions, JointProperties jointProperties, int position)
 	{
 		super(dimensions);
 		this.jointProperties = jointProperties;

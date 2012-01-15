@@ -6,7 +6,7 @@ import java.util.Map;
 import com.jme3.bullet.joints.HingeJoint;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.matjazmuhic.util.JointProperties;
+import com.matjazmuhic.physics.JointProperties;
 import com.matjazmuhic.util.OrganismTimer;
 
 public class OrganismJme

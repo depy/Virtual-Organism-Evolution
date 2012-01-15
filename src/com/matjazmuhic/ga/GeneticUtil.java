@@ -25,8 +25,6 @@ public class GeneticUtil
 		BlockNode node2 = getRandomSubTree(tree2);
 		node2.setParent(parent);
 		node2.setRoot(node.getRoot());
-		System.out.println("parent.getChildren()[node1pos] => "+parent.getChildren()[node1pos]);
-		System.out.println("node2 => "+node2);
 		parent.getChildren()[node1pos] = node2;
 		
 		return tree1;

@@ -1,17 +1,11 @@
 package com.matjazmuhic;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import org.lwjgl.Sys;
-
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.BulletAppState;
@@ -32,54 +26,54 @@ import com.matjazmuhic.ga.GaManager;
 import com.matjazmuhic.persistence.OrganismRepository;
 import com.matjazmuhic.persistence.PropertiesStore;
 import com.matjazmuhic.tree.OrganismTree;
-import com.matjazmuhic.util.Judge;
 import com.matjazmuhic.util.KeyInputActionListener;
+import com.matjazmuhic.util.MainJudge;
 
 public class OrganismEvolution extends SimpleApplication
 {
 	boolean headless;
-	boolean testsStarted;
+	boolean testsStarted;	
+
 	BulletAppState bulletAppState;
-	Map<String, List<Material>> materialsStore = new HashMap<String, List<Material>>();
-	List<Thread> judgesList;
-	List<Organism> organismList;
 	KeyInputActionListener keyActionListener;
-	int numGenerations;
-	int populationSize;
 	Camera mainCam;
-	Vector3f startPosition = null;
+	List<Material> materialsStore;
+	
 	GaManager gaManager;
 	int generationNum = 0;
+	int numGenerations;
+	int populationSize;
+	
 	ExecutorService organismExecutor;
-	ExecutorService judgesExecutor;
+	ExecutorService mainJudgeExecutor;
 	List<Future<Float>> resultsFuturesList;
+	List<Organism> organismList;
 	
 	public OrganismEvolution()
-	{
-		keyActionListener = new KeyInputActionListener(this);
-		
+	{	
 	}
 	
 	public static void main(String[] args) 
 	{
 		OrganismEvolution app = new OrganismEvolution();
+		app.keyActionListener = new KeyInputActionListener(app);
 		app.headless = Boolean.parseBoolean(PropertiesStore.getIstance().get("headless"));
-		app.judgesList = new ArrayList<Thread>();
 		app.organismList = new ArrayList<Organism>();
 		app.numGenerations = Integer.valueOf(PropertiesStore.getIstance().get("numGenerations"));
 		app.populationSize = Integer.valueOf(PropertiesStore.getIstance().get("populationSize"));
 	
 		app.organismExecutor = Executors.newFixedThreadPool(app.populationSize);
-		app.judgesExecutor = Executors.newFixedThreadPool(app.populationSize);
-		
+		app.mainJudgeExecutor = Executors.newFixedThreadPool(1);
 		app.resultsFuturesList = new ArrayList<Future<Float>>();
 		
 		AppSettings settings = new AppSettings(true);
-		settings.setResolution(1024,768);
+		settings.setResolution(800,600);
+		settings.setFrameRate(60);
+		settings.setVSync(false);
 		app.setSettings(settings);
 		app.setShowSettings(false);
 		
-		app.materialsStore.put("materials", new ArrayList<Material>());
+		app.materialsStore = new ArrayList<Material>();
 
 		if(app.headless)
 		{
@@ -99,82 +93,8 @@ public class OrganismEvolution extends SimpleApplication
 		initPhysics();
 		keyActionListener.mapKeys();
 		
-		/* With GA */
-		
 		makePopulation(populationSize);
 		gaManager = new GaManager(this);
-		
-		
-		/* Generate 1 */
-		/*
-		Node organismNode = new Node();
-		rootNode.attachChild(organismNode);
-		Organism organism;
-		organism = OrganismFactory.getInstance(this).createRandomOrganism(organismNode);
-		organismList.add(organism);
-		addFloor(organismNode);
-		Judge judge = new Judge(organism, generationNum);
-		Thread judgeThread = new Thread(judge);
-		judgesList.add(judgeThread);
-		judgeThread.start();
-		*/
-		
-		/* Generate multiple */
-		/*
-		for(int i=0; i<100; i++)
-		{
-			Node organismNode = new Node();
-			rootNode.attachChild(organismNode);
-			Organism organism;
-			organism = OrganismFactory.getInstance(this).createRandomOrganism(organismNode);
-		
-			organism.move(new Vector3f(0.0f, i*250.0f, 0.0f));
-			organismList.add(organism);
-			addFloor(organismNode);
-			
-		}	
-		
-		for(Organism organism: organismList)
-		{
-			organism.notifyDestroy();
-			organism = null;
-		}
-
-		rootNode.detachAllChildren();
-		
-		for(int i=0; i<100; i++)
-		{
-			Node organismNode = new Node();
-			rootNode.attachChild(organismNode);
-			Organism organism;
-			organism = OrganismFactory.getInstance(this).createRandomOrganism(organismNode);
-			organism.move(new Vector3f(0.0f, i*250.0f, 0.0f));
-			organismList.add(organism);
-			addFloor(organismNode);
-			
-		}	
-		*/
-		
-		/* Write to XML */
-		//Util.write(organism.getOrganismTree(), "test1.xml");	
-		
-		
-		/* Read from XML */
-		/*
-		OrganismTree oTree = OrganismRepository.readFromXml("27225eb7-d95d-48db-94f2-c72eb4fd5ce2");
-		System.out.println(organismNode);
-		organism = organismFactory.createFromTree(oTree, organismNode);
-		*/
-		
-		
-		/* Read 2 from XML and crossover */
-		/*
-		OrganismTree oTree1 = Util.read("fc0d7129-46a5-43c7-8eb7-93f8c6950044.xml");
-		OrganismTree oTree2 = Util.read("9d67d6b3-9b5c-43d5-81d7-b5d43f230781.xml");
-		OrganismTree newTree = GeneticUtil.crossover(oTree1, oTree2);
-		System.out.println(organismNode);
-		organism = organismFactory.createFromTree(newTree, organismNode);
-		*/		
 	}
 	
 	@Override
@@ -193,33 +113,17 @@ public class OrganismEvolution extends SimpleApplication
 
 			if(finished)
 			{
-				organismExecutor.shutdownNow();
-				judgesExecutor.shutdownNow();
-				organismExecutor = Executors.newFixedThreadPool(populationSize);
-				judgesExecutor = Executors.newFixedThreadPool(populationSize);
-
+				for(Organism o: organismList)
+				{
+					o.getOrganismJme().getOrganismTimer().setFinished(true);
+				}
+				
 				if(generationNum<=numGenerations)
 				{					
 					testsStarted=false;
 					List<OrganismTree> newGen = gaManager.step(generationNum);
-					
-					/* Spring cleaning */
-					resultsFuturesList.clear();
-					
-					for(Organism organism: organismList)
-					{
-						organism.notifyDestroy();
-						for(HingeJoint hjTemp: organism.getOrganismJme().jointsMap.keySet())
-						{
-							bulletAppState.getPhysicsSpace().remove(hjTemp);
-						}	
-						organism = null;
-					}
-					organismList.clear();
-					rootNode.detachAllChildren();
-					
-					/* Make new population */
-					makePopulation(newGen);	
+					cleanUp();
+					makePopulation(newGen);
 				}
 			}
 		}	
@@ -231,22 +135,40 @@ public class OrganismEvolution extends SimpleApplication
 	{
 		OrganismRepository.getInstance().printResults();
 		
-		for(Thread t: judgesList)
-		{
-			t.interrupt();
-		}
-		
 		for(Organism organism: organismList)
 		{
 			organism.notifyDestroy();
 		}
 		
 		organismExecutor.shutdownNow();
-		judgesExecutor.shutdownNow();
+		mainJudgeExecutor.shutdownNow();
 		
 		super.destroy();
 		
 	};
+	
+	private void cleanUp()
+	{
+		resultsFuturesList.clear();
+		
+		for(Organism organism: organismList)
+		{
+			organism.notifyDestroy();
+			for(HingeJoint hjTemp: organism.getOrganismJme().jointsMap.keySet())
+			{
+				bulletAppState.getPhysicsSpace().remove(hjTemp);
+			}	
+			organism = null;
+		}
+		organismList.clear();
+		
+		for(Spatial spatial: rootNode.getChildren())
+		{
+			bulletAppState.getPhysicsSpace().removeAll(spatial);
+		}
+		
+		rootNode.detachAllChildren();
+	}
 		
 	private void initCamera()
 	{
@@ -276,7 +198,7 @@ public class OrganismEvolution extends SimpleApplication
 		Material matf = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 		matf.setColor("Color", ColorRGBA.LightGray);
 		floor.setMaterial(matf);
-		floor.move(0, min.y-50.0f, 0);
+		floor.move(0, min.y-20.0f, 0);
 		RigidBodyControl fc = new RigidBodyControl(0.0f);
 		fc.setCollisionGroup(1);
 		floor.addControl(fc);
@@ -286,23 +208,7 @@ public class OrganismEvolution extends SimpleApplication
 		floor.setShadowMode(ShadowMode.Receive);
 		rootNode.attachChild(floor);
 	}
-	
-	//Getters
-	public BulletAppState getBulletAppState()
-	{
-		return bulletAppState;
-	}
 
-	public Map<String, List<Material>> getStore() 
-	{
-		return materialsStore;
-	}
-
-	public Camera getMainCam() 
-	{
-		return mainCam;
-	}
-	
 	public void makePopulation(int size)
 	{
 		generationNum++;
@@ -318,12 +224,8 @@ public class OrganismEvolution extends SimpleApplication
 			organism.move(new Vector3f(0.0f, i*250.0f, 0.0f));
 			organismList.add(organism);
 			addFloor(organismNode);
-			
-			Callable<Float> judge = new Judge(organism, generationNum);
-			Future<Float> fJudge = judgesExecutor.submit(judge);
-			resultsFuturesList.add(fJudge);
-		}	
-		testsStarted = true;
+		}
+		createJudge();
 	}
 	
 	public void makePopulation(List<OrganismTree> oTrees)
@@ -341,12 +243,32 @@ public class OrganismEvolution extends SimpleApplication
 			organism.move(new Vector3f(0.0f, i*250.0f, 0.0f));
 			organismList.add(organism);
 			addFloor(organismNode);
-			
-			Callable<Float> judge = new Judge(organism, generationNum);
-			Future<Float> fJudge = judgesExecutor.submit(judge);
-			resultsFuturesList.add(fJudge);
 		}	
+		createJudge();
+	}
+	
+	public void createJudge()
+	{
+		MainJudge j = new MainJudge(this, generationNum);
+		Future<Float> fJudge = mainJudgeExecutor.submit(j);
+		resultsFuturesList.add(fJudge);
 		testsStarted = true;
+	}
+	
+	//Getters
+	public BulletAppState getBulletAppState()
+	{
+		return bulletAppState;
+	}
+
+	public List<Material> getMaterialsStore() 
+	{
+		return materialsStore;
+	}
+
+	public Camera getMainCam() 
+	{
+		return mainCam;
 	}
 	
 	public List<Organism> getOrganismList() 

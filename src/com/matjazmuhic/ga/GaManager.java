@@ -35,10 +35,8 @@ public class GaManager
 		Collections.sort(currentGeneration);
 		
 		int numElites = populationSize*elitePercentage/100;
-		System.out.println("Num elites = "+numElites);
 		for(int i=0; i<numElites; i++)
 		{			
-			System.out.println("Adding elite "+i+" with score: "+currentGeneration.get(i));
 			nextGen.add(currentGeneration.get(i));
 		}
 		
@@ -72,7 +70,6 @@ public class GaManager
 		
 		for(int i=0; i<numElites; i++)
 		{			
-			System.out.println("Next gen "+i+" elite with score: "+nextGen.get(i));
 			nextGen.add(currentGeneration.get(i));
 		}
 

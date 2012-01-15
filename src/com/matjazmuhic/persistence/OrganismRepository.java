@@ -8,12 +8,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-
 import com.ajexperience.utils.DeepCopyException;
 import com.ajexperience.utils.DeepCopyUtil;
 import com.matjazmuhic.tree.OrganismTree;
@@ -112,7 +109,7 @@ public class OrganismRepository
     	{
     		System.out.println("Generation "+entry.getKey());
     		List<OrganismTree> organismList = entry.getValue();
-    		Collections.sort(organismList);
+    		
     		for(OrganismTree oTree: organismList)
     		{
     			System.out.println("Subject "+oTree.toString()+" scored "+oTree.getScore());

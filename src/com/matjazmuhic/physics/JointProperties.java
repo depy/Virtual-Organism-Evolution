@@ -1,4 +1,6 @@
-package com.matjazmuhic.util;
+package com.matjazmuhic.physics;
+
+import com.matjazmuhic.util.SimpleVector;
 
 public class JointProperties
 {

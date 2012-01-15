@@ -2,10 +2,8 @@ package com.matjazmuhic.util;
 
 import java.util.List;
 import java.util.Random;
-
+import java.util.UUID;
 import javax.management.RuntimeErrorException;
-
-import com.bulletphysics.collision.dispatch.CollisionObject;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bounding.BoundingVolume;
 import com.jme3.bullet.control.RigidBodyControl;
@@ -19,6 +17,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.matjazmuhic.OrganismEvolution;
 import com.matjazmuhic.persistence.PropertiesStore;
+import com.matjazmuhic.physics.JointProperties;
 
 public class Util 
 {
@@ -53,8 +52,8 @@ public class Util
 		float upperLimit = r.nextFloat()*1.5f+0.7f;	
 		
 		boolean collisions = false;
-		float motorTargetVelocity = r.nextFloat()*80f;
-		float motorMaxImpulse = getRandomFloatTenth()*4.0f;
+		float motorTargetVelocity = r.nextFloat()*30f;
+		float motorMaxImpulse = getRandomFloatTenth()*5.0f;
 		int timePeriod = r.nextInt(4500)+500;
 		int timeInterval = timerTimeInterval;
 		int timeRange = timePeriod / timeInterval;
@@ -90,7 +89,7 @@ public class Util
 	public static synchronized JmeObject createJmeNode(Dimensions d, OrganismEvolution app, String name)
 	{
 		Box b = new Box(d.x, d.y, d.z);
-		float mass = (d.x*d.y*d.z)/80;
+		//float mass = (d.x*d.y*d.z)/80;
 		Geometry geometry = new Geometry(name, b);
 		geometry.setModelBound(new BoundingBox());
 		geometry.updateModelBound();
@@ -102,7 +101,7 @@ public class Util
 		geometry.addControl(rigidBodyControl);
 		geometry.getControl(RigidBodyControl.class).setPhysicsLocation(geometry.getLocalTranslation());
 		app.getBulletAppState().getPhysicsSpace().add(geometry);
-		app.getStore().get("materials").add(material);
+		app.getMaterialsStore().add(material);
 
 		return new JmeObject(material, geometry);
 	}
@@ -138,4 +137,9 @@ public class Util
 		}
 		return false;
 	}	
+	
+	public static synchronized String getRandomName()
+	{
+		return UUID.randomUUID().toString();
+	}
 }

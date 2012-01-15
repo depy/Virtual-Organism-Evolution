@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.joints.HingeJoint;
@@ -13,6 +14,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.matjazmuhic.persistence.PropertiesStore;
+import com.matjazmuhic.physics.JointProperties;
 import com.matjazmuhic.physics.MotorObserver;
 import com.matjazmuhic.tree.BasicNode;
 import com.matjazmuhic.tree.BlockNode;
@@ -20,7 +22,6 @@ import com.matjazmuhic.tree.IBlockNode;
 import com.matjazmuhic.tree.OccupiedNode;
 import com.matjazmuhic.tree.OrganismTree;
 import com.matjazmuhic.util.Dimensions;
-import com.matjazmuhic.util.JointProperties;
 import com.matjazmuhic.util.Position;
 import com.matjazmuhic.util.Util;
 
@@ -67,7 +68,7 @@ public class OrganismFactory
 		Map<HingeJoint, JointProperties> jointsMap = new HashMap<HingeJoint, JointProperties>();
 		OrganismTree oTree = new OrganismTree();
 		OrganismJme oJme = new OrganismJme(node, jointsMap);
-		Organism organism = new Organism(oTree, oJme);
+		Organism organism = new Organism(oTree, oJme, Util.getRandomName());
 		createRandomRoot(organism);
 		createRecursively(organism.getOrganismTree().getRoot(), node, 0, organism.getOrganismJme().getJointsMap());
 		for(Map.Entry<HingeJoint, JointProperties> entry: oJme.getJointsMap().entrySet())
@@ -105,11 +106,11 @@ public class OrganismFactory
 					numAllNodes = ((BasicNode)node).getRoot().getNumAllNodes();
 					Dimensions d = Util.getRandomDimensions();
 					JointProperties jp = Util.getRandomJointProps();
-					BlockNode newNode= new BlockNode(d, jp);
+					BlockNode newNode= new BlockNode(d, jp, i);
 					node.addChild(newNode, i);
 
 					Util.JmeObject jmeObject = Util.createJmeNode(newNode.getDimensions(), app, newNode.getGeometryId()); 
-					app.getStore().get("materials").add(jmeObject.material);
+					app.getMaterialsStore().add(jmeObject.material);
 					
 					Geometry geometry = jmeObject.geometry;
 					Spatial parentSpatial = sceneNode.getChild(node.getGeometryId());
@@ -142,6 +143,7 @@ public class OrganismFactory
 			for(BlockNode child: addedChildren)
 			{
 				createRecursively(child, sceneNode, depth+1, jointsMap);
+				depth--;
 			}
 		}
 	}
@@ -158,7 +160,7 @@ public class OrganismFactory
 	{
 		Map<HingeJoint, JointProperties> jointsMap = new HashMap<HingeJoint, JointProperties>();
 		OrganismJme oJme = new OrganismJme(sceneNode, jointsMap);
-		Organism organism = new Organism(organismTree, oJme);
+		Organism organism = new Organism(organismTree, oJme, Util.getRandomName());
 			
 		createRoot(organismTree, oJme);
 		createRecursivelyFromTree(organism.getOrganismTree().getRoot(), oJme.getNode(), organism.getOrganismJme().getJointsMap());
@@ -188,7 +190,7 @@ public class OrganismFactory
 			JointProperties jp = childNode.getJointProperties();
 	
 			Util.JmeObject jmeObject = Util.createJmeNode(childNode.getDimensions(), app, childNode.getGeometryId()); 
-			app.getStore().get("materials").add(jmeObject.material);
+			app.getMaterialsStore().add(jmeObject.material);
 			
 			Geometry geometry = jmeObject.geometry;
 			Spatial parentSpatial = sceneNode.getChild(node.getGeometryId());
