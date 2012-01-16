@@ -68,7 +68,7 @@ public class OrganismFactory
 		Map<HingeJoint, JointProperties> jointsMap = new HashMap<HingeJoint, JointProperties>();
 		OrganismTree oTree = new OrganismTree();
 		OrganismJme oJme = new OrganismJme(node, jointsMap);
-		Organism organism = new Organism(oTree, oJme, Util.getRandomName());
+		Organism organism = new Organism(oTree, oJme, app.getDictionary().getRandomName());
 		createRandomRoot(organism);
 		createRecursively(organism.getOrganismTree().getRoot(), node, 0, organism.getOrganismJme().getJointsMap());
 		for(Map.Entry<HingeJoint, JointProperties> entry: oJme.getJointsMap().entrySet())
@@ -160,7 +160,7 @@ public class OrganismFactory
 	{
 		Map<HingeJoint, JointProperties> jointsMap = new HashMap<HingeJoint, JointProperties>();
 		OrganismJme oJme = new OrganismJme(sceneNode, jointsMap);
-		Organism organism = new Organism(organismTree, oJme, Util.getRandomName());
+		Organism organism = new Organism(organismTree, oJme, app.getDictionary().getRandomName());
 			
 		createRoot(organismTree, oJme);
 		createRecursivelyFromTree(organism.getOrganismTree().getRoot(), oJme.getNode(), organism.getOrganismJme().getJointsMap());

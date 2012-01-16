@@ -137,9 +137,5 @@ public class Util
 		}
 		return false;
 	}	
-	
-	public static synchronized String getRandomName()
-	{
-		return UUID.randomUUID().toString();
-	}
+
 }

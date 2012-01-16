@@ -26,6 +26,7 @@ import com.matjazmuhic.ga.GaManager;
 import com.matjazmuhic.persistence.OrganismRepository;
 import com.matjazmuhic.persistence.PropertiesStore;
 import com.matjazmuhic.tree.OrganismTree;
+import com.matjazmuhic.util.Dictionary;
 import com.matjazmuhic.util.KeyInputActionListener;
 import com.matjazmuhic.util.MainJudge;
 
@@ -40,6 +41,7 @@ public class OrganismEvolution extends SimpleApplication
 	List<Material> materialsStore;
 	
 	GaManager gaManager;
+	Dictionary dictionary;
 	int generationNum = 0;
 	int numGenerations;
 	int populationSize;
@@ -65,6 +67,8 @@ public class OrganismEvolution extends SimpleApplication
 		app.organismExecutor = Executors.newFixedThreadPool(app.populationSize);
 		app.mainJudgeExecutor = Executors.newFixedThreadPool(1);
 		app.resultsFuturesList = new ArrayList<Future<Float>>();
+
+		app.dictionary = new Dictionary("resources/com/matjazmuhic/dict.txt");
 		
 		AppSettings settings = new AppSettings(true);
 		settings.setResolution(800,600);
@@ -274,6 +278,11 @@ public class OrganismEvolution extends SimpleApplication
 	public List<Organism> getOrganismList() 
 	{
 		return organismList;
+	}
+
+	public Dictionary getDictionary()
+	{
+		return dictionary;
 	}	
 	
 }

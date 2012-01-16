@@ -112,7 +112,7 @@ public class OrganismRepository
     		
     		for(OrganismTree oTree: organismList)
     		{
-    			System.out.println("Subject "+oTree.toString()+" scored "+oTree.getScore());
+    			System.out.println("Subject "+oTree.getName()+" scored "+oTree.getScore());
     		}
     	}
     }

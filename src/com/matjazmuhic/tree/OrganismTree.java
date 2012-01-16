@@ -9,6 +9,7 @@ public class OrganismTree implements Serializable, Comparable<OrganismTree>
 	IBlockNode root;
 	int numNodes;
 	float score;
+	String name;
 	
 	public OrganismTree()
 	{
@@ -90,6 +91,16 @@ public class OrganismTree implements Serializable, Comparable<OrganismTree>
 	public int compareTo(OrganismTree oTree)
 	{
 		return (int)(oTree.score - this.score);
+	}
+
+	public String getName() 
+	{
+		return name;
+	}
+
+	public void setName(String name) 
+	{
+		this.name = name;
 	}
 		
 }

@@ -31,14 +31,14 @@ public class MainJudge implements Callable<Float>
 			for(Organism o: app.getOrganismList())
 			{
 				Vector3f startPosition  = (o.getOrganismJme().getNode().getWorldBound()).getCenter().clone();
-				performanceData.put(o.getName(), startPosition);
+				performanceData.put(o.getOrganismTree().getName(), startPosition);
 			}
 			Thread.sleep(Integer.valueOf(PropertiesStore.getIstance().get("warmupTime")));
 			Thread.sleep(Integer.valueOf(PropertiesStore.getIstance().get("performanceTime")));
 			for(Organism o: app.getOrganismList())
 			{
 				Vector3f endPosition = o.getOrganismJme().getNode().getWorldBound().getCenter().clone();
-				Vector3f startPosition = performanceData.get(o.getName());
+				Vector3f startPosition = performanceData.get(o.getOrganismTree().getName());
 				float score  = endPosition.distance(startPosition);
 				o.getOrganismTree().setScore(score);
 				OrganismRepository.getInstance().save(o.getOrganismTree(), generationNum);
