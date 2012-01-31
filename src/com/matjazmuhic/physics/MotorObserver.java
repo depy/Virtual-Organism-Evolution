@@ -4,18 +4,20 @@ import java.util.Observable;
 import java.util.Observer;
 
 import com.jme3.bullet.joints.HingeJoint;
+import com.matjazmuhic.persistence.PropertiesStore;
 
 public class MotorObserver implements Observer
 {
 	private HingeJoint hingeJoint;
 	private JointProperties jointProperties;
 	private int timerCounter;
-	
+	private int timerInterval;
 	public MotorObserver(HingeJoint hj, JointProperties jp)
 	{
 		this.hingeJoint = hj;
 		this.jointProperties = jp;
 		this.timerCounter = 0;
+		this.timerInterval = Integer.valueOf(PropertiesStore.getIstance().get("timerTimeInterval"));
 	}
 	
 	@Override
@@ -23,7 +25,7 @@ public class MotorObserver implements Observer
 	{	
 		timerCounter++;
 		
-		if(jointProperties.getTimeInterval()*timerCounter>=jointProperties.getTimePeriod())
+		if(timerInterval*timerCounter>=jointProperties.getTimePeriod())
 		{
 			timerCounter = 0;
 		}

@@ -14,13 +14,12 @@ public class JointProperties
 	private long timeA;
 	private long timeB;
 	private int timePeriod;
-	private int timeInterval;
 	
 	public JointProperties() 
 	{
 	}
 	
-	public JointProperties(SimpleVector axis1, SimpleVector axis2, float lowerLimit, float upperLimit, boolean collisions, float motorTargetVelocity, float motorMaxImpulse, int timeA, int timeB, int timePeriod, int timeInterval) 
+	public JointProperties(SimpleVector axis1, SimpleVector axis2, float lowerLimit, float upperLimit, boolean collisions, float motorTargetVelocity, float motorMaxImpulse, int timeA, int timeB, int timePeriod) 
 	{
 		this.axis1 = axis1;
 		this.axis2 = axis2;
@@ -32,7 +31,6 @@ public class JointProperties
 		this.timeA = timeA;
 		this.timeB = timeB;
 		this.timePeriod = timePeriod;
-		this.timeInterval = timeInterval;
 	}
 
 	public SimpleVector getAxis1()
@@ -84,11 +82,6 @@ public class JointProperties
 	{
 		return timePeriod;
 	}
-	
-	public int getTimeInterval()
-	{
-		return timeInterval;
-	}
 
 	//Needed for xml serialization
 	public void setAxis1(SimpleVector axis1)
@@ -139,11 +132,6 @@ public class JointProperties
 	public void setTimePeriod(int timePeriod)
 	{
 		this.timePeriod = timePeriod;
-	}
-
-	public void setTimeInterval(int timeInterval) 
-	{
-		this.timeInterval = timeInterval;
 	}
 	
 }

@@ -1,6 +1,8 @@
 package com.matjazmuhic.tree;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OrganismTree implements Serializable, Comparable<OrganismTree>
 {
@@ -10,10 +12,12 @@ public class OrganismTree implements Serializable, Comparable<OrganismTree>
 	int numNodes;
 	float score;
 	String name;
+	List<Float> scoreHistory;
 	
 	public OrganismTree()
 	{
 		numNodes = 0;
+		scoreHistory = new ArrayList<Float>();
 	}
 	
 	public IBlockNode getRoot()
@@ -82,9 +86,16 @@ public class OrganismTree implements Serializable, Comparable<OrganismTree>
 		return score;
 	}
 
-	public void setScore(float score)
+	public void addScore(float f)
 	{
-		this.score = score;
+		scoreHistory.add(f);
+		
+		float sum = 0.0f;
+		for(Float temp: scoreHistory)
+		{
+			sum+=temp;
+		}
+		this.score = sum/scoreHistory.size();
 	}
 
 	@Override
@@ -101,6 +112,11 @@ public class OrganismTree implements Serializable, Comparable<OrganismTree>
 	public void setName(String name) 
 	{
 		this.name = name;
+	}
+
+	public List<Float> getScoreHistory() 
+	{
+		return scoreHistory;
 	}
 		
 }

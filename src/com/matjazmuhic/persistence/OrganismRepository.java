@@ -107,13 +107,16 @@ public class OrganismRepository
     {
     	for(Map.Entry<Integer, List<OrganismTree>> entry: storage.entrySet())
     	{
-    		System.out.println("Generation "+entry.getKey());
     		List<OrganismTree> organismList = entry.getValue();
     		
+    		/*
+    		System.out.println("Generation "+entry.getKey());
     		for(OrganismTree oTree: organismList)
     		{
-    			System.out.println("Subject "+oTree.getName()+" scored "+oTree.getScore());
+    			System.out.println("Num scores: "+oTree.getScoreHistory().size()+" => Subject: "+oTree.getName()+" => Score: "+oTree.getScore());
     		}
+    		*/
+    		writeToXml(organismList.get(0), organismList.get(0).getName());
     	}
     }
     

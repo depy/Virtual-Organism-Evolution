@@ -64,6 +64,6 @@ public class Dictionary
 		Random r = new Random();
 		int wlSize = r.nextInt(wordList.size());
 		
-		return wordList.get(r.nextInt(wlSize))+r.nextInt(10)+wordList.get(r.nextInt(wlSize));
+		return wordList.get(r.nextInt(wlSize))+"_"+wordList.get(r.nextInt(wlSize))+"_"+r.nextInt(10);
 	}
 }

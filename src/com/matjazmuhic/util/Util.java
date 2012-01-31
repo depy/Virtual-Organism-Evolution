@@ -20,9 +20,7 @@ import com.matjazmuhic.persistence.PropertiesStore;
 import com.matjazmuhic.physics.JointProperties;
 
 public class Util 
-{
-	private static int timerTimeInterval = Integer.parseInt(PropertiesStore.getIstance().get("timerTimeInterval"));
-	
+{	
 	public static class JmeObject
 	{
 		public Material material;
@@ -48,19 +46,23 @@ public class Util
 	{
 		SimpleVector axis1 = new SimpleVector(r.nextFloat(), r.nextFloat(), r.nextFloat());
 		SimpleVector axis2 = new SimpleVector(r.nextFloat(), r.nextFloat(), r.nextFloat());
-		float lowerLimit = (r.nextFloat()*1.57f)-1.5f;
-		float upperLimit = r.nextFloat()*1.5f+0.7f;	
+		float lowerLimit = ((r.nextFloat()*1.5f)*(-1))-0.5f;
+		float upperLimit = r.nextFloat()*1.5f+0.5f;	
 		
 		boolean collisions = false;
-		float motorTargetVelocity = r.nextFloat()*30f;
-		float motorMaxImpulse = getRandomFloatTenth()*5.0f;
+		//float motorTargetVelocity = r.nextFloat()*30f;
+		//float motorMaxImpulse = getRandomFloatTenth()*5.0f;
+		float motorTargetVelocity = 30f;
+		float motorMaxImpulse = 2.0f;
 		int timePeriod = r.nextInt(4500)+500;
-		int timeInterval = timerTimeInterval;
-		int timeRange = timePeriod / timeInterval;
-		int timeA = r.nextInt(timeRange);
-		int timeB = r.nextInt(timeRange-timeA);
-		
-		return new JointProperties(axis1, axis2, lowerLimit, upperLimit, collisions, motorTargetVelocity, motorMaxImpulse, timeA, timeB, timePeriod, timeInterval);
+		int timeRange =  timePeriod;
+		int timeA = r.nextInt(timeRange-100)+100;
+		int timeB = r.nextInt(timeRange-100)+timeA+100;
+		if(timeA == timeB)
+		{
+			System.out.println("\n\nOMG OMG OMG!\n\n timeA = "+timeA+" timeB = "+timeB+"\n\n");
+		}
+		return new JointProperties(axis1, axis2, lowerLimit, upperLimit, collisions, motorTargetVelocity, motorMaxImpulse, timeA, timeB, timePeriod);
 	}
 	
 	private static float getRandomFloatTenth()
@@ -89,15 +91,15 @@ public class Util
 	public static synchronized JmeObject createJmeNode(Dimensions d, OrganismEvolution app, String name)
 	{
 		Box b = new Box(d.x, d.y, d.z);
-		//float mass = (d.x*d.y*d.z)/80;
+		float mass = (d.x*d.y*d.z)/80;
 		Geometry geometry = new Geometry(name, b);
 		geometry.setModelBound(new BoundingBox());
 		geometry.updateModelBound();
 		Material material = new Material(app.getAssetManager(), "Common/MatDefs/Misc/Unshaded.j3md");
 		material.setColor("Color", ColorRGBA.randomColor());
 		geometry.setMaterial(material);
-		RigidBodyControl rigidBodyControl = new RigidBodyControl();
-		rigidBodyControl.setCollisionGroup(0);
+		RigidBodyControl rigidBodyControl = new RigidBodyControl(mass);
+		rigidBodyControl.setCollisionGroup(1);
 		geometry.addControl(rigidBodyControl);
 		geometry.getControl(RigidBodyControl.class).setPhysicsLocation(geometry.getLocalTranslation());
 		app.getBulletAppState().getPhysicsSpace().add(geometry);
@@ -109,6 +111,11 @@ public class Util
 	public static Vector3f simpleVectorToVector3f(SimpleVector v)
 	{
 		return new Vector3f(v.getX(), v.getY(), v.getZ());
+	}
+	
+	public static SimpleVector vector3fToSimpleVector(Vector3f v)
+	{
+		return new SimpleVector(v.getX(), v.getY(), v.getZ());
 	}
 	
 	public static Vector3f getRandomVector()

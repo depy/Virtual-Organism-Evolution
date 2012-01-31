@@ -27,8 +27,16 @@ import com.matjazmuhic.util.Util;
 
 public class OrganismFactory 
 {
+	Random r;
+	int numNodes = 1;
 	private static OrganismFactory instance = null;
 	private static OrganismEvolution app = null;
+	int maxDepth = Integer.parseInt(PropertiesStore.getIstance().get("maxDepth"));
+	int maxOrganismNodes = Integer.parseInt(PropertiesStore.getIstance().get("maxOrganismNodes"));
+	
+	int chanceToCreateNode = Integer.parseInt(PropertiesStore.getIstance().get("chanceToCreateNode"));
+	float jointOffset = Float.parseFloat(PropertiesStore.getIstance().get("jointOffset"));
+	boolean collisionBetweenLinkedBodys = Boolean.parseBoolean(PropertiesStore.getIstance().get("collisionBetweenLinkedBodys"));
 	
 	private OrganismFactory()
 	{
@@ -44,27 +52,15 @@ public class OrganismFactory
 		app = organismEvolutionApp;
 		return instance;
 	}
-	
-	int maxDepth = Integer.parseInt(PropertiesStore.getIstance().get("maxDepth"));
-	int maxOrganismNodes = Integer.parseInt(PropertiesStore.getIstance().get("maxOrganismNodes"));
-	int minOrganismNodes = Integer.parseInt(PropertiesStore.getIstance().get("minOrganismNodes"));
-	int maxNodes;
-	int chanceToCreateNode = Integer.parseInt(PropertiesStore.getIstance().get("chanceToCreateNode"));
-	
-	float jointOffset = Float.parseFloat(PropertiesStore.getIstance().get("jointOffset"));
-	
-	boolean collisionBetweenLinkedBodys = Boolean.parseBoolean(PropertiesStore.getIstance().get("collisionBetweenLinkedBodys"));
-	Random r;
-	int numNodes = 1;
-	
+
 	public void init()
 	{
 		r = new Random();
-		maxNodes = r.nextInt(maxOrganismNodes);
 	}
 	
 	public Organism createRandomOrganism(Node node)
 	{
+		numNodes = 1;
 		Map<HingeJoint, JointProperties> jointsMap = new HashMap<HingeJoint, JointProperties>();
 		OrganismTree oTree = new OrganismTree();
 		OrganismJme oJme = new OrganismJme(node, jointsMap);
@@ -93,17 +89,17 @@ public class OrganismFactory
 	
 	private void createRecursively(IBlockNode node, Node sceneNode, int depth, Map<HingeJoint, JointProperties> jointsMap)
 	{
-		if(depth <= this.maxDepth)
+		if(depth <= this.maxDepth && numNodes<=maxOrganismNodes)
 		{
 			List<BlockNode> addedChildren = new ArrayList<BlockNode>();
 			for(int i=0; i<8; i++)
 			{
-				int numAllNodes = ((BasicNode)node).getRoot().getNumAllNodes();
-				if((r.nextInt(chanceToCreateNode)==0) && numNodes<maxNodes || (i==(8-minOrganismNodes+numAllNodes)))
+				boolean ticketToPass = (numNodes==1 && i==7);
+				
+				if(((r.nextInt(chanceToCreateNode)==0) && numNodes<maxOrganismNodes) || ticketToPass)
 				{
 					boolean collidesWithOtherNodes = true;
 					
-					numAllNodes = ((BasicNode)node).getRoot().getNumAllNodes();
 					Dimensions d = Util.getRandomDimensions();
 					JointProperties jp = Util.getRandomJointProps();
 					BlockNode newNode= new BlockNode(d, jp, i);

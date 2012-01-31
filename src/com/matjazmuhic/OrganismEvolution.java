@@ -1,11 +1,16 @@
 package com.matjazmuhic;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import com.ajexperience.utils.DeepCopyException;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bounding.BoundingBox;
 import com.jme3.bullet.BulletAppState;
@@ -57,6 +62,8 @@ public class OrganismEvolution extends SimpleApplication
 	
 	public static void main(String[] args) 
 	{
+		Logger.getLogger("com.jme3").setLevel(Level.SEVERE);
+		Logger.getLogger("com.bulletphysics").setLevel(Level.SEVERE);
 		OrganismEvolution app = new OrganismEvolution();
 		app.keyActionListener = new KeyInputActionListener(app);
 		app.headless = Boolean.parseBoolean(PropertiesStore.getIstance().get("headless"));
@@ -125,7 +132,15 @@ public class OrganismEvolution extends SimpleApplication
 				if(generationNum<=numGenerations)
 				{					
 					testsStarted=false;
-					List<OrganismTree> newGen = gaManager.step(generationNum);
+					List<OrganismTree> newGen = null;
+					try
+					{
+						newGen = gaManager.step(generationNum);
+					} 
+					catch (DeepCopyException e) 
+					{
+						e.printStackTrace();
+					}
 					cleanUp();
 					makePopulation(newGen);
 				}
@@ -233,7 +248,7 @@ public class OrganismEvolution extends SimpleApplication
 	}
 	
 	public void makePopulation(List<OrganismTree> oTrees)
-	{
+	{		
 		generationNum++;
 		
 		for(int i=0; i<oTrees.size(); i++)

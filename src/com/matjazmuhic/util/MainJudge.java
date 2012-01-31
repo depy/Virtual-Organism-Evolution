@@ -40,7 +40,8 @@ public class MainJudge implements Callable<Float>
 				Vector3f endPosition = o.getOrganismJme().getNode().getWorldBound().getCenter().clone();
 				Vector3f startPosition = performanceData.get(o.getOrganismTree().getName());
 				float score  = endPosition.distance(startPosition);
-				o.getOrganismTree().setScore(score);
+				
+				o.getOrganismTree().addScore(score);
 				OrganismRepository.getInstance().save(o.getOrganismTree(), generationNum);
 			}
 			
@@ -52,7 +53,7 @@ public class MainJudge implements Callable<Float>
 		}
 		catch (InterruptedException e)
 		{
-			
+			System.out.println("Interrupted!");
 		}
 		
 		return null;
