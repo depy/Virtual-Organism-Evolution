@@ -53,6 +53,5 @@ public class Dimensions
 	{
 		this.z = z;
 	}
-	
-	
+
 }

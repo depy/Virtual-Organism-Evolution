@@ -37,7 +37,7 @@ public class Util
 	
 	public static Dimensions getRandomDimensions()
 	{
-		float f = r.nextInt(15)+5;
+		float f = r.nextInt(18)+2;
 		float g = 1;
 		return new Dimensions(r.nextFloat()*f+g, r.nextFloat()*f+g, r.nextFloat()*f+g);
 	}
@@ -46,8 +46,8 @@ public class Util
 	{
 		SimpleVector axis1 = new SimpleVector(r.nextFloat(), r.nextFloat(), r.nextFloat());
 		SimpleVector axis2 = new SimpleVector(r.nextFloat(), r.nextFloat(), r.nextFloat());
-		float lowerLimit = ((r.nextFloat()*1.5f)*(-1))-0.5f;
-		float upperLimit = r.nextFloat()*1.5f+0.5f;	
+		float lowerLimit = ((r.nextFloat()*1.5f)*(-1))-0.1f;
+		float upperLimit = (r.nextFloat()*1.5f)+0.1f;	
 		
 		boolean collisions = false;
 		//float motorTargetVelocity = r.nextFloat()*30f;
@@ -90,8 +90,10 @@ public class Util
 	
 	public static synchronized JmeObject createJmeNode(Dimensions d, OrganismEvolution app, String name)
 	{
+		float massFactor = 0.5f;
 		Box b = new Box(d.x, d.y, d.z);
-		float mass = (d.x*d.y*d.z)/80;
+		float mass = (d.x*d.y*d.z)*massFactor;
+		
 		Geometry geometry = new Geometry(name, b);
 		geometry.setModelBound(new BoundingBox());
 		geometry.updateModelBound();

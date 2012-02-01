@@ -33,6 +33,7 @@ public class OrganismFactory
 	private static OrganismEvolution app = null;
 	int maxDepth = Integer.parseInt(PropertiesStore.getIstance().get("maxDepth"));
 	int maxOrganismNodes = Integer.parseInt(PropertiesStore.getIstance().get("maxOrganismNodes"));
+	int tempMaxNodes;
 	
 	int chanceToCreateNode = Integer.parseInt(PropertiesStore.getIstance().get("chanceToCreateNode"));
 	float jointOffset = Float.parseFloat(PropertiesStore.getIstance().get("jointOffset"));
@@ -61,6 +62,7 @@ public class OrganismFactory
 	public Organism createRandomOrganism(Node node)
 	{
 		numNodes = 1;
+		tempMaxNodes = r.nextInt(maxOrganismNodes-3)+3;
 		Map<HingeJoint, JointProperties> jointsMap = new HashMap<HingeJoint, JointProperties>();
 		OrganismTree oTree = new OrganismTree();
 		OrganismJme oJme = new OrganismJme(node, jointsMap);
@@ -89,14 +91,14 @@ public class OrganismFactory
 	
 	private void createRecursively(IBlockNode node, Node sceneNode, int depth, Map<HingeJoint, JointProperties> jointsMap)
 	{
-		if(depth <= this.maxDepth && numNodes<=maxOrganismNodes)
+		if(depth <= this.maxDepth && numNodes<=tempMaxNodes)
 		{
 			List<BlockNode> addedChildren = new ArrayList<BlockNode>();
 			for(int i=0; i<8; i++)
 			{
 				boolean ticketToPass = (numNodes==1 && i==7);
 				
-				if(((r.nextInt(chanceToCreateNode)==0) && numNodes<maxOrganismNodes) || ticketToPass)
+				if(((r.nextInt(chanceToCreateNode)==0) && numNodes<tempMaxNodes) || ticketToPass)
 				{
 					boolean collidesWithOtherNodes = true;
 					
