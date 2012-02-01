@@ -52,8 +52,8 @@ public class Util
 		boolean collisions = false;
 		//float motorTargetVelocity = r.nextFloat()*30f;
 		//float motorMaxImpulse = getRandomFloatTenth()*5.0f;
-		float motorTargetVelocity = 30f;
-		float motorMaxImpulse = 2.0f;
+		float motorTargetVelocity = 50f;
+		float motorMaxImpulse = 10.0f;
 		int timePeriod = r.nextInt(4500)+500;
 		int timeRange =  timePeriod;
 		int timeA = r.nextInt(timeRange-100)+100;
