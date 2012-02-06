@@ -1,7 +1,6 @@
 package com.matjazmuhic;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -9,6 +8,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
 
 import com.ajexperience.utils.DeepCopyException;
 import com.jme3.app.SimpleApplication;
@@ -39,7 +40,8 @@ public class OrganismEvolution extends SimpleApplication
 {
 	boolean headless;
 	boolean testsStarted;	
-
+	boolean flag = false;
+	
 	BulletAppState bulletAppState;
 	KeyInputActionListener keyActionListener;
 	Camera mainCam;
@@ -50,7 +52,6 @@ public class OrganismEvolution extends SimpleApplication
 	int generationNum = 0;
 	int numGenerations;
 	int populationSize;
-	
 	ExecutorService organismExecutor;
 	ExecutorService mainJudgeExecutor;
 	List<Future<Float>> resultsFuturesList;
@@ -78,9 +79,9 @@ public class OrganismEvolution extends SimpleApplication
 		app.dictionary = new Dictionary("resources/com/matjazmuhic/dict.txt");
 		
 		AppSettings settings = new AppSettings(true);
-		settings.setResolution(800,600);
-		settings.setFrameRate(60);
-		settings.setVSync(false);
+		settings.setResolution(640,480);
+		settings.setFrameRate(30);
+		settings.setVSync(true);
 		app.setSettings(settings);
 		app.setShowSettings(false);
 		
@@ -103,9 +104,21 @@ public class OrganismEvolution extends SimpleApplication
 		initCamera();
 		initPhysics();
 		keyActionListener.mapKeys();
-		
+
+		/*
 		makePopulation(populationSize);
 		gaManager = new GaManager(this);
+		*/
+		
+		/* single organism load */
+		
+		
+		Node sceneNode = new Node("sceneNode");
+		OrganismTree ot = OrganismRepository.getInstance().readFromXml("G19_analogue_indeed_9");
+		List<OrganismTree> l = new ArrayList<OrganismTree>();
+		l.add(ot);
+		makePopulation(l);
+		
 	}
 	
 	@Override
@@ -115,6 +128,17 @@ public class OrganismEvolution extends SimpleApplication
 
 		boolean finished = false;
 
+		if(generationNum==numGenerations && !flag)
+		{
+			flag = true;
+			OrganismRepository.getInstance().printResults();
+			System.out.println("=================================!");
+			System.out.println("FINISHED!");
+			System.out.println("FINISHED!");
+			System.out.println("FINISHED!");
+			System.out.println("=================================!");
+		}
+			
 		if(testsStarted)
 		{
 			for(Future<Float> f: resultsFuturesList)
@@ -133,15 +157,20 @@ public class OrganismEvolution extends SimpleApplication
 				{					
 					testsStarted=false;
 					List<OrganismTree> newGen = null;
+					cleanUpPhysics();
+					
 					try
 					{
 						newGen = gaManager.step(generationNum);
+						System.out.println("GENERATION "+generationNum);
 					} 
 					catch (DeepCopyException e) 
 					{
 						e.printStackTrace();
 					}
-					cleanUp();
+					
+					rootNode.detachAllChildren();
+					organismList.clear();
 					makePopulation(newGen);
 				}
 			}
@@ -166,7 +195,7 @@ public class OrganismEvolution extends SimpleApplication
 		
 	};
 	
-	private void cleanUp()
+	private void cleanUpPhysics()
 	{
 		resultsFuturesList.clear();
 		
@@ -179,14 +208,12 @@ public class OrganismEvolution extends SimpleApplication
 			}	
 			organism = null;
 		}
-		organismList.clear();
 		
 		for(Spatial spatial: rootNode.getChildren())
 		{
 			bulletAppState.getPhysicsSpace().removeAll(spatial);
 		}
 		
-		rootNode.detachAllChildren();
 	}
 		
 	private void initCamera()
@@ -199,25 +226,26 @@ public class OrganismEvolution extends SimpleApplication
 	private void initPhysics()
 	{
 		bulletAppState = new BulletAppState();
-		bulletAppState.setSpeed(1.0f);
-		bulletAppState.setEnabled(true);
 		stateManager.attach(bulletAppState);
 		
-		bulletAppState.getPhysicsSpace().setGravity(new Vector3f(0.0f, -200.0f, 0.0f));
-		bulletAppState.getPhysicsSpace().setAccuracy(0.005f);
+		bulletAppState.setSpeed(1.0f);
+		bulletAppState.setEnabled(true);
+		bulletAppState.getPhysicsSpace().setGravity(new Vector3f(0.0f, -400.0f, 0.0f));
+		bulletAppState.getPhysicsSpace().setAccuracy(0.01f);
+		//bulletAppState.getPhysicsSpace().setMaxSubSteps(10);
 		bulletAppState.getPhysicsSpace().enableDebug(assetManager);
 	}
 	
 	private void addFloor(Node node)
 	{
 		Vector3f min = ((BoundingBox)node.getWorldBound()).getMin(null);
-		Box f = new Box(Vector3f.ZERO, 100000.0f, 2.0f, 100000.f);
+		Box f = new Box(Vector3f.ZERO, 10000.0f, 10.0f, 10000.f);
 		Geometry floor = new Geometry(UUID.randomUUID().toString(), f);
 		floor.setShadowMode(ShadowMode.Receive);
 		Material matf = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-		matf.setColor("Color", ColorRGBA.LightGray);
+		matf.setColor("Color", ColorRGBA.Gray);
 		floor.setMaterial(matf);
-		floor.move(0, min.y-20.0f, 0);
+		floor.move(0, min.y-50.0f, 0);
 		RigidBodyControl fc = new RigidBodyControl(0.0f);
 		fc.setCollisionGroup(1);
 		floor.addControl(fc);
@@ -231,16 +259,16 @@ public class OrganismEvolution extends SimpleApplication
 	public void makePopulation(int size)
 	{
 		generationNum++;
+		float heightDiff = 300.0f;
 		
 		for(int i=0; i<size; i++)
 		{
-			
 			Node organismNode = new Node();
 			rootNode.attachChild(organismNode);
 			Organism organism;
 			organism = OrganismFactory.getInstance(this).createRandomOrganism(organismNode);
 			organismExecutor.execute(organism.getOrganismJme().getOrganismTimer());
-			organism.move(new Vector3f(0.0f, i*250.0f, 0.0f));
+			organism.move(new Vector3f(0.0f, i*heightDiff, 0.0f));
 			organismList.add(organism);
 			addFloor(organismNode);
 		}
@@ -250,6 +278,7 @@ public class OrganismEvolution extends SimpleApplication
 	public void makePopulation(List<OrganismTree> oTrees)
 	{		
 		generationNum++;
+		float heightDiff = 300.0f;
 		
 		for(int i=0; i<oTrees.size(); i++)
 		{
@@ -259,7 +288,7 @@ public class OrganismEvolution extends SimpleApplication
 			Organism organism;
 			organism = OrganismFactory.getInstance(this).createFromTree(oTrees.get(i), organismNode);
 			organismExecutor.execute(organism.getOrganismJme().getOrganismTimer());
-			organism.move(new Vector3f(0.0f, i*250.0f, 0.0f));
+			organism.move(new Vector3f(0.0f, i*heightDiff, 0.0f));
 			organismList.add(organism);
 			addFloor(organismNode);
 		}	
@@ -298,6 +327,6 @@ public class OrganismEvolution extends SimpleApplication
 	public Dictionary getDictionary()
 	{
 		return dictionary;
-	}	
+	}
 	
 }

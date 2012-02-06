@@ -37,8 +37,8 @@ public class Util
 	
 	public static Dimensions getRandomDimensions()
 	{
-		float f = r.nextInt(18)+2;
-		float g = 1;
+		float f = r.nextInt(20);
+		float g = 5;
 		return new Dimensions(r.nextFloat()*f+g, r.nextFloat()*f+g, r.nextFloat()*f+g);
 	}
 	
@@ -46,13 +46,13 @@ public class Util
 	{
 		SimpleVector axis1 = new SimpleVector(r.nextFloat(), r.nextFloat(), r.nextFloat());
 		SimpleVector axis2 = new SimpleVector(r.nextFloat(), r.nextFloat(), r.nextFloat());
-		float lowerLimit = ((r.nextFloat()*1.5f)*(-1))-0.1f;
-		float upperLimit = (r.nextFloat()*1.5f)+0.1f;	
+		float lowerLimit = ((r.nextFloat()*1.3f)*(-1))-0.2f;
+		float upperLimit = (r.nextFloat()*1.3f)+0.2f;	
 		
 		boolean collisions = false;
 		//float motorTargetVelocity = r.nextFloat()*30f;
 		//float motorMaxImpulse = getRandomFloatTenth()*5.0f;
-		float motorTargetVelocity = 50f;
+		float motorTargetVelocity = 500.0f;
 		float motorMaxImpulse = 10.0f;
 		int timePeriod = r.nextInt(4500)+500;
 		int timeRange =  timePeriod;
@@ -62,7 +62,10 @@ public class Util
 		{
 			System.out.println("\n\nOMG OMG OMG!\n\n timeA = "+timeA+" timeB = "+timeB+"\n\n");
 		}
-		return new JointProperties(axis1, axis2, lowerLimit, upperLimit, collisions, motorTargetVelocity, motorMaxImpulse, timeA, timeB, timePeriod);
+		
+		String name = UUID.randomUUID().toString();
+		
+		return new JointProperties(axis1, axis2, lowerLimit, upperLimit, collisions, motorTargetVelocity, motorMaxImpulse, timeA, timeB, timePeriod, name);
 	}
 	
 	private static float getRandomFloatTenth()
@@ -90,7 +93,7 @@ public class Util
 	
 	public static synchronized JmeObject createJmeNode(Dimensions d, OrganismEvolution app, String name)
 	{
-		float massFactor = 0.5f;
+		float massFactor = 0.001f;
 		Box b = new Box(d.x, d.y, d.z);
 		float mass = (d.x*d.y*d.z)*massFactor;
 		

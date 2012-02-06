@@ -14,12 +14,13 @@ public class JointProperties
 	private long timeA;
 	private long timeB;
 	private int timePeriod;
+	private String name;
 	
 	public JointProperties() 
 	{
 	}
 	
-	public JointProperties(SimpleVector axis1, SimpleVector axis2, float lowerLimit, float upperLimit, boolean collisions, float motorTargetVelocity, float motorMaxImpulse, int timeA, int timeB, int timePeriod) 
+	public JointProperties(SimpleVector axis1, SimpleVector axis2, float lowerLimit, float upperLimit, boolean collisions, float motorTargetVelocity, float motorMaxImpulse, int timeA, int timeB, int timePeriod, String name) 
 	{
 		this.axis1 = axis1;
 		this.axis2 = axis2;
@@ -31,6 +32,7 @@ public class JointProperties
 		this.timeA = timeA;
 		this.timeB = timeB;
 		this.timePeriod = timePeriod;
+		this.name = name;
 	}
 
 	public SimpleVector getAxis1()
@@ -132,6 +134,16 @@ public class JointProperties
 	public void setTimePeriod(int timePeriod)
 	{
 		this.timePeriod = timePeriod;
+	}
+
+	public String getName() 
+	{
+		return name;
+	}
+
+	public void setName(String name) 
+	{
+		this.name = name;
 	}
 	
 }

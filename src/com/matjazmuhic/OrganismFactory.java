@@ -62,7 +62,7 @@ public class OrganismFactory
 	public Organism createRandomOrganism(Node node)
 	{
 		numNodes = 1;
-		tempMaxNodes = r.nextInt(maxOrganismNodes-3)+3;
+		tempMaxNodes = r.nextInt(maxOrganismNodes-2)+2;
 		Map<HingeJoint, JointProperties> jointsMap = new HashMap<HingeJoint, JointProperties>();
 		OrganismTree oTree = new OrganismTree();
 		OrganismJme oJme = new OrganismJme(node, jointsMap);
@@ -212,7 +212,9 @@ public class OrganismFactory
 	{
 		Dimensions parentDim = node.getDimensions();
 		Dimensions newNodeDim = newNode.getDimensions();
-		Vector3f translationVector = new Vector3f(p.x*(parentDim.x+newNodeDim.x), p.y*(parentDim.y+newNodeDim.y), p.z*(parentDim.z+newNodeDim.z));
+		Vector3f tempV = new Vector3f(p.x*(parentDim.x+newNodeDim.x), p.y*(parentDim.y+newNodeDim.y), p.z*(parentDim.z+newNodeDim.z));
+		//Vector3f translationVector = tempV.mult(1.0f);
+		Vector3f translationVector = tempV;
 		Vector3f parentTranslation = parentSpatial.getLocalTranslation();
 		Vector3f desiredTranslation = parentTranslation.add(translationVector);
 		geometry.setLocalTranslation(desiredTranslation);
@@ -232,7 +234,9 @@ public class OrganismFactory
  				jPivotA,
  				jPivotB,
  				Util.simpleVectorToVector3f(jp.getAxis1()).normalize(),
- 				Util.simpleVectorToVector3f(jp.getAxis2()).normalize()
+ 				//Util.simpleVectorToVector3f(jp.getAxis2()).normalize()
+ 				//getRandomAxis(),
+ 				getRandomAxis()
  				);
 		
 		
@@ -240,5 +244,20 @@ public class OrganismFactory
 		joint.setLimit(jp.getLowerLimit(), jp.getUpperLimit());
 		app.getBulletAppState().getPhysicsSpace().add(joint);
 		return joint;
+	}
+	
+	private Vector3f getRandomAxis()
+	{
+		int n = r.nextInt(3);
+		Vector3f vec = null;
+		
+		switch(n)
+		{
+			case 0: vec = Vector3f.UNIT_X; break;
+			case 1: vec = Vector3f.UNIT_Y; break;
+			case 2: vec = Vector3f.UNIT_Z; break;
+		}
+		
+		return vec;	
 	}
 }

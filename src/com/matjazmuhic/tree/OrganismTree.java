@@ -118,5 +118,26 @@ public class OrganismTree implements Serializable, Comparable<OrganismTree>
 	{
 		return scoreHistory;
 	}
+	
+	//Used for serialization to xml
+	public int getNumNodes() 
+	{
+		return numNodes;
+	}
+
+	public void setNumNodes(int numNodes) 
+	{
+		this.numNodes = numNodes;
+	}
+
+	public void setScore(float score)
+	{
+		this.score = score;
+	}
+
+	public void setScoreHistory(List<Float> scoreHistory) 
+	{
+		this.scoreHistory = scoreHistory;
+	}
 		
 }

@@ -75,7 +75,8 @@ public class OrganismRepository
     }	
     
     public void save(OrganismTree oTree, int generation)
-    {
+    {    	
+    	//writeToXml(oTree, ("_gen"+generation)+oTree.getName());
     	List<OrganismTree> organisms;
     	
     	if(!storage.containsKey(generation))
@@ -116,7 +117,8 @@ public class OrganismRepository
     			System.out.println("Num scores: "+oTree.getScoreHistory().size()+" => Subject: "+oTree.getName()+" => Score: "+oTree.getScore());
     		}
     		*/
-    		writeToXml(organismList.get(0), organismList.get(0).getName());
+    		
+    		writeToXml(organismList.get(0), "G"+entry.getKey().toString()+"_"+organismList.get(0).getName());
     	}
     }
     

@@ -34,6 +34,7 @@ public class MainJudge implements Callable<Float>
 				performanceData.put(o.getOrganismTree().getName(), startPosition);
 			}
 			Thread.sleep(Integer.valueOf(PropertiesStore.getIstance().get("warmupTime")));
+			//app.getBulletAppState().getPhysicsSpace().setGravity(new Vector3f(0.0f, -400.0f, 0.0f));
 			Thread.sleep(Integer.valueOf(PropertiesStore.getIstance().get("performanceTime")));
 			for(Organism o: app.getOrganismList())
 			{
@@ -46,6 +47,7 @@ public class MainJudge implements Callable<Float>
 			}
 			
 			performanceData.clear();
+			//app.getBulletAppState().getPhysicsSpace().setGravity(new Vector3f(0.0f, 0.0f, 0.0f));
 		} 
 		catch (NumberFormatException e) 
 		{
